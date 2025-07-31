@@ -449,25 +449,21 @@ function 修改名字含色碼()
   gg.setVisible(false)
   gg.setRanges(gg.REGION_ANONYMOUS)
   gg.searchNumber("12;1", gg.TYPE_DWORD)
-  gg.toast("🔍 已搜尋 12;1")
 
   gg.alert("提示：請將名字改為『123』\n完成後按 GG 修改器繼續。")
   while not gg.isVisible(true) do gg.sleep(500) end
   gg.setVisible(false)
   gg.refineNumber("12;3", gg.TYPE_DWORD)
-  gg.toast("🔍 簡化為 12;3")
 
   gg.alert("提示：請將名字改為『1』\n完成後按 GG 修改器繼續。")
   while not gg.isVisible(true) do gg.sleep(500) end
   gg.setVisible(false)
   gg.refineNumber("12;1", gg.TYPE_DWORD)
-  gg.toast("🔍 簡化為 12;1")
 
   gg.alert("提示：請將名字改為『123』\n完成後按 GG 修改器繼續。")
   while not gg.isVisible(true) do gg.sleep(500) end
   gg.setVisible(false)
   gg.refineNumber("12;3", gg.TYPE_DWORD)
-  gg.toast("🔍 最後一次簡化完成")
 
   -- 📌 記憶體修改
   local results = gg.getResults(100)
@@ -480,22 +476,37 @@ function 修改名字含色碼()
 
   gg.alert("✅ 修改成功！你現在可以自由修改名字，限制：色碼+名稱總共最多 20 字")
 
-  -- 🎨 色碼選擇（20種）
-  local 色碼選項 = {
-    "💛黃色（808000）", "💙亮藍（00BFFF）", "❤️紅色（FF0000）", "💚亮綠（00FF00）",
-    "🖤黑色（000000）", "🤍白色（FFFFFF）", "💜紫色（800080）", "🩶灰色（808080）",
-    "🧡橘色（FFA500）", "🌸粉紅（FFC0CB）", "🩵青藍（00CED1）", "🟤棕色（8B4513）",
-    "💙深藍（0000CD）", "💚暗綠（006400）", "🟡金黃（FFD700）", "🟥酒紅（8B0000）",
-    "🌿草綠（7CFC00）", "🩷玫紅（FF1493）", "🔵寶藍（4169E1）", "🟣靛藍（4B0082）"
-  }
+local 色碼選項 = {
+  "💛黃色（808000）", "💙亮藍（00BFFF）", "❤️紅色（FF0000）", "💚亮綠（00FF00）",
+  "🖤黑色（000000）", "💜紫色（800080）", "🩶灰色（808080）", "🧡橘色（FFA500）",
+  "🌸粉紅（FFC0CB）", "🩵青藍（00CED1）", "🟤棕色（8B4513）", "💙深藍（0000CD）",
+  "💚暗綠（006400）", "🟡金黃（FFD700）", "🟥酒紅（8B0000）", "🌿草綠（7CFC00）",
+  "🩷玫紅（FF1493）", "🔵寶藍（4169E1）", "🟣靛藍（4B0082）", "🌺紫紅（DA70D6）",
+  "🍊橘紅（FF6347）", "🍋檸檬黃（FFFACD）", "🫐藍紫（6A5ACD）", "🌊淡藍（87CEFA）",
+  "🌼奶黃（FAFAD2）", "🥝淺綠（98FB98）", "🫒橄欖綠（9ACD32）", "🪻薰衣草（E6E6FA）",
+  "🍬嫩紫（D8BFD8）", "🫧天藍（ADD8E6）", "🌷淺粉紅（FFB6C1）", "🌿薄荷綠（AAF0D1）",
+  "🌞杏黃（FFE4B5）", "🧊冰藍（AFEEEE）", "🪵赤陶（D2691E）", "🧁奶茶（F5DEB3）",
+  "🌸櫻花粉（FF69B4）", "🩰淺紫紅（DB7093）", "🍡蜜桃紅（FFDAB9）", "🌻向日黃（FFF8DC）"
+}
 
-  local 色碼值 = {
-    "[808000]", "[00BFFF]", "[FF0000]", "[00FF00]",
-    "[000000]", "[FFFFFF]", "[800080]", "[808080]",
-    "[FFA500]", "[FFC0CB]", "[00CED1]", "[8B4513]",
-    "[0000CD]", "[006400]", "[FFD700]", "[8B0000]",
-    "[7CFC00]", "[FF1493]", "[4169E1]", "[4B0082]"
-  }
+local 色碼值 = {
+  "[808000]", "[00BFFF]", "[FF0000]", "[00FF00]",
+  "[000000]", "[800080]", "[808080]", "[FFA500]",
+  "[FFC0CB]", "[00CED1]", "[8B4513]", "[0000CD]",
+  "[006400]", "[FFD700]", "[8B0000]", "[7CFC00]",
+  "[FF1493]", "[4169E1]", "[4B0082]", "[DA70D6]",
+  "[FF6347]", "[FFFACD]", "[6A5ACD]", "[87CEFA]",
+  "[FAFAD2]", "[98FB98]", "[9ACD32]", "[E6E6FA]",
+  "[D8BFD8]", "[ADD8E6]", "[FFB6C1]", "[AAF0D1]",
+  "[FFE4B5]", "[AFEEEE]", "[D2691E]", "[F5DEB3]",
+  "[FF69B4]", "[DB7093]", "[FFDAB9]", "[FFF8DC]"
+}
+
+local 選擇 = gg.choice(色碼選項, nil, "🎨 請選擇你想要的名字色碼")
+if 選擇 == nil then
+  gg.toast("❌ 你取消了操作")
+  return
+end
 
   local 選擇 = gg.choice(色碼選項, nil, "🎨 請選擇你想要的名字色碼")
   if 選擇 == nil then
