@@ -502,33 +502,63 @@ local 色碼值 = {
   "[FF69B4]", "[DB7093]", "[FFDAB9]", "[FFF8DC]"
 }
 
+-- UTF-8 字數計算函數
+local function utf8len(str)
+  local len = 0
+  for _, _ in utf8.codes(str) do
+    len = len + 1
+  end
+  return len
+end
+
+-- 選擇色碼
 local 選擇 = gg.choice(色碼選項, nil, "🎨 請選擇你想要的名字色碼")
 if 選擇 == nil then
   gg.toast("❌ 你取消了操作")
   return
 end
 
-  local 選擇 = gg.choice(色碼選項, nil, "🎨 請選擇你想要的名字色碼")
-  if 選擇 == nil then
-    gg.toast("❌ 你取消了操作")
-    return
-  end
+-- 輸入名稱
+local 名稱輸入 = gg.prompt({"🔤 請輸入名字（最多 12 字）"}, nil, {"text"})
+if 名稱輸入 == nil or 名稱輸入[1] == "" then
+  gg.toast("❌ 沒有輸入任何名字")
+  return
+end
 
-  local 名稱輸入 = gg.prompt({"🔤 請輸入名字（最多 12 字）"}, nil, {"text"})
-  if 名稱輸入 == nil or 名稱輸入[1] == "" then
-    gg.toast("❌ 沒有輸入任何名字")
-    return
-  end
+local 名稱 = 名稱輸入[1]
+local 字數 = utf8len(名稱)
 
-  local 名稱 = 名稱輸入[1]
-  if string.len(名稱) > 12 then
-    gg.alert("❌ 名字太長，最多只能輸入 12 字元！\n你輸入了：" .. string.len(名稱))
-    return
-  end
+if 字數 > 12 then
+  gg.alert("❌ 名字太長，最多只能輸入 12 字！\n你輸入了：" .. 字數 .. " 字")
+  return
+end
 
-  local 最終名稱 = 色碼值[選擇] .. 名稱
-  gg.copyText(最終名稱)
-  gg.alert("✅ 名字已複製：\n\n" .. 最終名稱 .. "\n\n📏 共 " .. string.len(最終名稱) .. " 字（上限 20）")
+local 最終名稱 = 色碼值[選擇] .. 名稱
+gg.copyText(最終名稱)
+gg.alert("✅ 名字已複製：\n\n" .. 最終名稱)
+end
+
+function freeToyotaCrown()
+    gg.alert("免費豐田皇冠")
+
+    gg.setRanges(gg.REGION_ANONYMOUS)
+
+    gg.searchNumber("3;0;218;-1:13", gg.TYPE_DWORD, false, gg.SIGN_EQUAL, 0, -1)
+    gg.toast("搜索完成，正在篩選數據...")
+
+    gg.refineNumber("218", gg.TYPE_DWORD, false, gg.SIGN_EQUAL, 0, -1)
+    gg.toast("篩選完成，正在修改數據...")
+
+    local results = gg.getResults(10)
+    if #results > 0 then
+        gg.editAll("0", gg.TYPE_DWORD)
+        gg.toast("數據修改完成🤫")
+    else
+        gg.alert("未找到匹配數據，請重試！")
+    end
+
+    gg.clearResults()
+    gg.alert("修改完成✅ 您現在可以去購車頁面找到豐田皇冠並且購買😆")
 end
 
 function 關於作者()
@@ -572,6 +602,7 @@ function 主選單()
       "🔁修改車重",
       "🥵真正的懸浮車",
       "📋修改長名含色碼",
+      "🔓解鎖購買豐田皇冠車",
       "📄 關於作者",
       "🔐 驗證密鑰",
       "❌ 退出腳本"
@@ -594,11 +625,13 @@ function 主選單()
       真正的懸浮車()
     elseif choice == 7 then
       修改名字含色碼()
-    elseif choice == 8 then
-      關於作者()
+    elseif choice == 8 then  
+      freeToyotaCrown()
     elseif choice == 9 then
-      驗證密鑰()
+      關於作者()
     elseif choice == 10 then
+      驗證密鑰()
+    elseif choice == 11 then
       gg.toast("腳本已退出 作者 ⚡RMSTUDIO⚡Ryder Chang🇹🇼")
       os.exit()
       break
