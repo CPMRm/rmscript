@@ -1,0 +1,1487 @@
+-- Constant Information
+local GLabel = 'Car Parking'
+local GProcess = 'com.olzhas.carparking.multyplayer'
+local GVersion = '4.9.3.3'
+
+-- Application Verification
+local v = gg.getTargetInfo()
+if v.processName ~= GProcess then
+  gg.alert("Car Parking version you can use this script for:\n"..GLabel.."\n"..GProcess..
+           "\n\nYour current version:\n"..v.label.."\n"..v.processName)
+  os.exit()
+end
+
+if GVersion ~= v.versionName then
+  gg.alert("Scripti kullanabileceğiniz sürüm:\n"..GVersion..
+           "\n\nYour current version:\n"..v.versionName)
+  os.exit()
+end
+
+-- Tanımlı Sabit Arama
+gg.searchNumber(":Cebrail", 1)
+gg.clearResults()
+
+-- Memory Address Value Setting Function
+function setvalue(address, flags, value)
+  gg.setValues({[1] = {address = address, flags = flags, value = value}})
+end
+
+-- Main Menu
+function anaMenu()
+  local secenekler = {
+    "Coin & Money Menu",
+    "Race Menu",
+    "Achievements Menu",
+    "Unlock Menu",
+    "Modification Menu",
+    "Chrome Menu",
+    "UFO Menu",
+    "Body Kit Menu",
+    "HP Menu",
+    "Exit"
+  }
+
+  local secim = gg.choice(secenekler, nil, "YouTube: @R&MGAME.\nTelegram: @RMSTUDIO MAIN")
+  if secim == nil then return end
+
+  local fonksiyonlar = {
+    coinparaMenu, yarisMenu, basarilarMenu, kilitAcmaMenu,
+    modifiyeMenu, kromMenu, ufoMenu, govdeMenu, hp, cikisYap
+  }
+
+  fonksiyonlar[secim]()
+end
+
+function cikisYap()
+  gg.clearResults()
+  gg.clearList()
+  gg.toast("Script Exit yapılıyor...")
+  os.exit()
+end
+
+-- Coin & Para Alt Menüsü
+function coinparaMenu()
+  local menu = gg.choice({
+    "Coin Menü",
+    "Para Menü",
+    "0$ Araba Satın Al",
+    "Geri"
+  }, nil, "YouTube: @R&MGAME.\nTelegram: @RMSTUDIO MAIN")
+
+  if menu == 1 then coinMenu()
+  elseif menu == 2 then paraMenu()
+  elseif menu == 3 then arabaBedava()
+  elseif menu == 4 then anaMenu()
+  end
+end
+
+-- 0�? Araba Satın Alma
+function arabaBedava()
+  degerarama("SellCarTrigger", "0x60", false, false, gg.TYPE_QWORD)
+  local t = gg.getResults(150)
+  for i, v in ipairs(t) do
+    v.value = 0
+    v.freeze = true
+  end
+  gg.addListItems(t)
+  gg.clearResults()
+  gg.alert("Pazarda bulunan tüm araçlar 0�?")
+end
+
+-- Coin Menüsü
+function coinMenu()
+  local menu = gg.choice({
+    "Coin Artır",
+    "Coin Düşür",
+    "Geri"
+  }, nil, "YouTube: @R&MGAME\nTelegram: @RMSTUDIO MAIN")
+
+  if menu == 1 then
+    increaseMenu()
+  elseif menu == 2 then
+    decreaseMenu()
+  elseif menu == 3 then
+    coinparaMenu()
+  end
+end
+
+-- Coin Artırma
+function increaseMenu()
+  local menu = gg.choice({
+    "10K Coin Artır",
+    "20K Coin Artır",
+    "30K Coin Artır",
+    "500K Coin Artır",
+    "Özel Coin Artır",
+    "Geri"
+  }, nil, "YouTube: @R&MGAME.\nTelegram: @RMSTUDIO MAIN")
+
+  local miktarlar = {10000, 20000, 30000, 500000}
+  if menu and menu >= 1 and menu <= 4 then
+    setCoinToTarget(miktarlar[menu])
+  elseif menu == 5 then
+    applyCustomCoinIncrease()
+  elseif menu == 6 then
+    coinMenu()
+  end
+end
+
+function setCoinToTarget(hedef)
+  local input = gg.prompt({"Mevcut coin miktarını girin:"}, nil, {"number"})
+  if not input then return gg.alert("İşlem iptal edildi.") end
+
+  local mevcut = tonumber(input[1])
+  if not mevcut then return gg.alert("Geçersiz sayı girdiniz.") end
+  if hedef <= mevcut then return gg.alert("Sadece artırma yapılabilir.") end
+
+  local fark = hedef - mevcut
+  degerarama("Prize", "0x10", false, false, 32)
+  local results = gg.getResults(100)
+  if #results == 0 then return gg.alert("Sonuç bulunamadı!") end
+
+  for i, v in ipairs(results) do v.value = fark end
+  gg.setValues(results)
+gg.clearResults()
+  gg.alert("Odaya girin ve günlük görevlerden birini tamamlayın.\nHangi görevi yapmak istiyorsanız Başarılar menüsünden hızlıca yapabilirsiniz.")
+  gg.toast("Coin değeri " .. fark .. " artırıldı.")
+end
+
+function applyCustomCoinIncrease()
+  local input = gg.prompt({"Mevcut coin miktarı:", "Hedef coin miktarı:"}, nil, {"number", "number"})
+  if not input then return gg.alert("İşlem iptal edildi.") end
+
+  local mevcut, hedef = tonumber(input[1]), tonumber(input[2])
+  if not mevcut or not hedef then return gg.alert("Geçersiz sayı.") end
+  if hedef <= mevcut then return gg.alert("Sadece artırma yapılabilir.") end
+
+  local fark = hedef - mevcut
+  degerarama("Prize", "0x10", false, false, 32)
+  local results = gg.getResults(100)
+  if #results == 0 then return gg.alert("Sonuç bulunamadı!") end
+
+  for i, v in ipairs(results) do v.value = fark end
+  gg.setValues(results)
+gg.clearResults()
+  gg.alert("Odaya girin ve günlük görevlerden birini tamamlayın.\nHangi görevi yapmak istiyorsanız, Başarılar menüsünden hızlıca yapabilirsiniz.")
+  gg.toast("Coin değeri " .. fark .. " artırıldı.")
+end
+
+-- Coin Azaltma
+function decreaseMenu()
+  local menu = gg.choice({
+    "10K Coin Azalt",
+    "20K Coin Azalt",
+    "30K Coin Azalt",
+    "500K Coin Azalt",
+    "Özel Coin Azalt",
+    "Geri"
+  }, nil, "YouTube: @R&MGAME.\nTelegram: @RMSTUDIO MAIN")
+
+  local miktarlar = {10000, 20000, 30000, 500000}
+  if menu and menu >= 1 and menu <= 4 then
+    decreaseCoinByTarget(miktarlar[menu])
+  elseif menu == 5 then
+    applyCustomCoinDecrease()
+  elseif menu == 6 then
+    coinMenu()
+  end
+end
+
+function decreaseCoinByTarget(hedef)
+  gg.alert("Lütfen komutları adım adım yapın:\n\n\n\naraba satın alma yerine gidip bir aracı seçin araba üzerinde bulunan ok işaretlerin den birine tıklayın ve coinli  gövde kitini seçin ve ardından GG'yi tıklayın.")
+  repeat until gg.isVisible() gg.setVisible(false)
+
+  local input = gg.prompt({"Mevcut coin miktarını girin:"}, nil, {"number"})
+  if not input then return gg.alert("İşlem iptal edildi.") end
+
+  local mevcut = tonumber(input[1])
+  if not mevcut then return gg.alert("Geçersiz sayı.") end
+  if hedef >= mevcut then return gg.alert("Sadece azaltma yapılabilir.") end
+
+  local fark = mevcut - hedef
+  local yazilacakSayi = -fark
+  degerarama("KitController", "0x44", false, false, 4)
+  local results = gg.getResults(100)
+  if #results == 0 then return gg.alert("Sonuç bulunamadı!") end
+
+  for i, v in ipairs(results) do v.value = yazilacakSayi end
+  gg.setValues(results)
+gg.clearResults()
+  gg.alert("aynı kit sağ oka ardından sol oka tıklayın ve arabayı satın alın.")
+  gg.toast("Coin değeri " .. fark .. " azaltıldı.")
+end
+
+function applyCustomCoinDecrease()
+  gg.alert("Lütfen komutları adım adım yapın:\n\n\n\naraba satın alma yerine gidip bir aracı seçin araba üzerinde bulunan ok işaretlerin den birine tıklayın ve coinli  gövde kitini seçin ve ardından GG'yi tıklayın.")
+  repeat until gg.isVisible() gg.setVisible(false)
+
+  local input = gg.prompt({"Mevcut coin:", "Hedef coin:"}, nil, {"number", "number"})
+  if not input then return gg.alert("İşlem iptal edildi.") end
+
+  local mevcut, hedef = tonumber(input[1]), tonumber(input[2])
+  if not mevcut or not hedef then return gg.alert("Geçersiz sayı.") end
+  if hedef >= mevcut then return gg.alert("Sadece azaltma yapılabilir.") end
+
+  local fark = mevcut - hedef
+  local yazilacakSayi = -fark
+  degerarama("KitController", "0x44", false, false, 4)
+  local results = gg.getResults(100)
+  if #results == 0 then return gg.alert("Sonuç bulunamadı!") end
+
+  for i, v in ipairs(results) do v.value = yazilacakSayi end
+  gg.setValues(results)
+gg.clearResults()
+  gg.alert("aynı kit sağ oka ardından sol oka tıklayın ve arabayı satın alın.")
+  gg.toast("Coin değeri " .. fark .. " azaltıldı.")
+end
+
+-- Para Menü
+local sinirsizParaDurum = false
+local paraDondurDurum = false
+
+function paraMenu()
+  local menu = gg.multiChoice({
+    "Sınırsız Para: " .. durumYaz(sinirsizParaDurum),
+    "Para Dondur: " .. durumYaz(paraDondurDurum),
+    "Geri"
+  }, nil, "YouTube: @R&MGAME.\nTelegram: @RMSTUDIO MAIN")
+
+  if menu == nil then return end
+
+  if menu[1] then
+    sinirsizParaDurum = not sinirsizParaDurum
+    if sinirsizParaDurum then
+      sinirsizParaAc()
+    else
+      sinirsizParaKapat()
+    end
+  end
+
+  if menu[2] then
+    paraDondurDurum = not paraDondurDurum
+    if paraDondurDurum then
+      paraDondurAc()
+    else
+      paraDondurKapat()
+    end
+  end
+
+  if menu[3] then coinparaMenu() end
+end
+
+function durumYaz(durum)
+  return durum and "AÇIK" or "KAPALI"
+end
+
+function sinirsizParaAc()
+  local base = gg.getRangesList('libil2cpp.so')[2].start
+  local patch1 = {
+    {address = base + 0x15234A0, value = '7E967699h', flags = 4}
+  }
+  gg.setValues(patch1)
+
+  local patch2 = {
+    {address = base + 0x2EA23C8, value = '528ED320h', flags = 4},
+    {address = base + 0x2EA23C8 + 4, value = '72AFD2C0h', flags = 4},
+    {address = base + 0x2EA23C8 + 8, value = '1E270000h', flags = 4},
+    {address = base + 0x2EA23C8 + 12, value = 'D65F03C0h', flags = 4}
+  }
+  gg.setValues(patch2)
+  gg.alert("Paraya tıklayın ve sınırsız parayı kapatın.")
+end
+
+function sinirsizParaKapat()
+  local base = gg.getRangesList('libil2cpp.so')[2].start
+  local patch = {
+    {address = base + 0x2EA23C8, value = 'FC1D0FE8h', flags = 4},
+    {address = base + 0x2EA23C8 + 4, value = 'A90157FEh', flags = 4},
+    {address = base + 0x2EA23C8 + 8, value = 'A9024FF4h', flags = 4},
+    {address = base + 0x2EA23C8 + 12, value = '90025355h', flags = 4}
+  }
+  gg.setValues(patch)
+  gg.toast("Sınırsız Para Kapatıldı")
+end
+
+function paraDondurAc()
+  local base = gg.getRangesList('libil2cpp.so')[2].start
+  local patch = {
+    {address = base + 0x3258888, value = 'D2800000h', flags = 4},
+    {address = base + 0x3258888 + 4, value = 'D65F03C0h', flags = 4}
+  }
+  gg.setValues(patch)
+  gg.toast("Para Dondurma açık")
+end
+
+function paraDondurKapat()
+  local base = gg.getRangesList('libil2cpp.so')[2].start
+  local patch = {
+    {address = base + 0x3258888, value = 'D10303FFh', flags = 4},
+    {address = base + 0x3258888 + 4, value = '6D042BEBh', flags = 4}
+  }
+  gg.setValues(patch)
+  gg.toast("Para Dondurma Kapatıldı")
+end
+
+-- Race Menu
+elFrenHizliArabaAktif = false
+
+function yarisMenu()
+    local menu = gg.choice({
+        "Hız Menü",
+        "Bug Menü",
+        "El Fren Hızlı Araba [" .. (elFrenHizliArabaAktif and "Açık" or "Kapalı") .. "]",
+        "Geri"
+    }, nil, "YouTube: @R&MGAME\nTelegram: @RMSTUDIO MAIN")
+
+    if menu == nil then return end
+    if menu == 1 then hizMenu() end
+    if menu == 2 then bugMenu() end
+    if menu == 3 then elFrenHizliAraba() end
+    if menu == 4 then anaMenu() end
+end
+
+function elFrenHizliAraba()
+    elFrenHizliArabaAktif = not elFrenHizliArabaAktif
+    gg.setRanges(gg.REGION_ANONYMOUS)
+
+    local yeniDeger = elFrenHizliArabaAktif and "-6800" or "6000"
+    local arananDeger = elFrenHizliArabaAktif and "6000" or "-6800"
+    local bilgiMesaj = elFrenHizliArabaAktif and "El Freni Hızlı Araba Açıldı" or "El Freni Hızlı Araba Kapatıldı"
+
+    gg.searchNumber(arananDeger, gg.TYPE_DWORD)
+    local sonuc = gg.getResults(10000)
+    if #sonuc > 0 then
+        for i, v in ipairs(sonuc) do
+            v.value = tonumber(yeniDeger)
+        end
+        gg.setValues(sonuc)
+    end
+    gg.clearResults()
+
+    if elFrenHizliArabaAktif then
+        gg.alert("Gösterge 100'ü aştığında park frenini çekmeyi unutmayın.")
+    end
+
+    gg.toast(bilgiMesaj)
+end
+
+local toggleValues = {}
+local revertData = {}
+
+for _, s in ipairs({0,1,2,3,5}) do
+    toggleValues[s] = false
+    revertData[s] = {}
+end
+
+function applyEdit(range, searchVal, editVal)
+    gg.setRanges(range)
+    gg.searchNumber(searchVal, gg.TYPE_FLOAT)
+    local results = gg.getResults(1000)
+    gg.editAll(editVal, gg.TYPE_FLOAT)
+    gg.clearResults()
+    return results
+end
+
+function revertEdits(seconds)
+    local data = revertData[seconds]
+    if data then
+        for _, d in ipairs(data) do
+            if d then gg.setValues(d) end
+        end
+        gg.toast(seconds .. " saniyelik işlem devre dışı")
+    end
+end
+
+function toggleValue(seconds)
+    for s, aktif in pairs(toggleValues) do
+        if s ~= seconds and aktif then
+            toggleValues[s] = false
+            revertEdits(s)
+        end
+    end
+
+    toggleValues[seconds] = not toggleValues[seconds]
+
+    if toggleValues[seconds] then
+        gg.toast(seconds .. " saniye Açıldı")
+        local r = {}
+        r[1] = applyEdit(gg.REGION_ANONYMOUS, "2500", "-100000")
+
+        if seconds == 5 then
+            r[2] = applyEdit(gg.REGION_CODE_APP, "3.6", "30")
+            r[3] = applyEdit(gg.REGION_CODE_APP, "10000000", "4E-4")
+        elseif seconds == 3 then
+            r[2] = applyEdit(gg.REGION_CODE_APP, "1.1", "3")
+            r[3] = applyEdit(gg.REGION_CODE_APP, "3.6", "925")
+            r[4] = applyEdit(gg.REGION_CODE_APP, "10000000", "4E-4")
+        elseif seconds == 2 then
+            r[2] = applyEdit(gg.REGION_CODE_APP, "1.1", "2.8")
+            r[3] = applyEdit(gg.REGION_CODE_APP, "10000000", "8E-4")
+        elseif seconds == 1 then
+            r[2] = applyEdit(gg.REGION_CODE_APP, "1.1", "10")
+            r[3] = applyEdit(gg.REGION_CODE_APP, "10000000", "3E-4")
+        elseif seconds == 0 then
+            r[2] = applyEdit(gg.REGION_CODE_APP, "1.1", "999")
+            r[3] = applyEdit(gg.REGION_CODE_APP, "10000000", "3E-4")
+        end
+
+        revertData[seconds] = r
+    else
+        revertEdits(seconds)
+    end
+end
+
+function hizMenu()
+    local secim = gg.choice({
+        "5 Saniye [" .. durumYaz(toggleValues[5]) .. "]",
+        "3 Saniye [" .. durumYaz(toggleValues[3]) .. "]",
+        "2 Saniye [" .. durumYaz(toggleValues[2]) .. "]",
+        "1 Saniye [" .. durumYaz(toggleValues[1]) .. "]",
+        "0 Saniye [" .. durumYaz(toggleValues[0]) .. "]",
+        "Geri"
+    }, nil, "YouTube: @R&MGAME\nTelegram: @RMSTUDIO MAIN")
+
+    if secim == nil or secim == 6 then return end
+
+    local saniyeler = {5,3,2,1,0}
+    local secilen = saniyeler[secim]
+    if secilen ~= nil then toggleValue(secilen) end
+end
+
+function durumYaz(d) return d and "Açık" or "Kapalı" end
+
+rakipKilitleAktif = false
+yaristanCikAktif = false
+sifirBitisAktif = false
+sifirBitisAdresler = {}
+
+function bugMenu()
+    local labels = {
+        "Rakibi Kilitle",
+        "Yarıştan Çık",
+        "00:00 Bitiş",
+        "Geri"
+    }
+    local kutular = {
+        rakipKilitleAktif,
+        yaristanCikAktif,
+        sifirBitisAktif,
+        false
+    }
+
+    local secim = gg.multiChoice(labels, kutular, "YouTube: @Cebrail_21.\nTelegram: @cebrail2")
+    if secim == nil or secim[4] then return yarisMenu() end
+
+    toggle(secim[1], "rakip", 0x31DFE80, {
+        ac = {"000080D2h", "C0035FD6h"},
+        kapat = {"F81D0FFEh", "A90157F6h"}
+    })
+
+    toggle(secim[2], "yaris", 0x31E3D7C, {
+        ac = {"000080D2h", "C0035FD6h"},
+        kapat = {"D10103FFh", "A9015FFEh"}
+    })
+
+    if secim[3] ~= sifirBitisAktif then
+        sifirBitisAktif = secim[3]
+        if sifirBitisAktif then sifirBitisAc() else sifirBitisKapat() end
+    end
+end
+
+-- Genel Aç/Kapat Fonksiyonu
+function toggle(durum, isim, offset, kodlar)
+    local aktifDeger = _G[isim.."KilitleAktif"] or false
+    if durum == aktifDeger then return end
+    _G[isim.."KilitleAktif"] = durum
+    local base = gg.getRangesList('libil2cpp.so')[2].start
+    local values = {
+        {address = base + offset,     value = durum and kodlar.ac[1] or kodlar.kapat[1], flags = 4},
+        {address = base + offset + 4, value = durum and kodlar.ac[2] or kodlar.kapat[2], flags = 4}
+    }
+    gg.setValues(values)
+    gg.toast(isim.." "..(durum and "açıldı" or "kapatıldı"))
+end
+
+-- 00:00 Bitiş
+function sifirBitisAc()
+    degerarama("MultiDragRacingControll", "0x124", false, false, gg.TYPE_FLOAT)
+    local t = gg.getResults(70)
+    sifirBitisAdresler = {}
+    for _, v in ipairs(t) do
+        if v.flags == gg.TYPE_FLOAT then
+            v.value = "0"
+            v.freeze = true
+            v.freezeType = gg.FREEZE_NORMAL
+            table.insert(sifirBitisAdresler, v)
+        end
+    end
+    gg.setValues(sifirBitisAdresler)
+    gg.toast("Süre 00:00 yapıldı ve donduruldu")
+end
+
+function sifirBitisKapat()
+    for _, v in ipairs(sifirBitisAdresler) do
+        v.freeze = false
+    end
+    gg.setValues(sifirBitisAdresler)
+    sifirBitisAdresler = {}
+    gg.toast("Süre dondurma kapatıldı")
+    gg.clearResults()
+end
+
+function basarilarMenu()
+  local secim = gg.choice({
+    "Başarılar 1",
+    "Başarılar 2",
+    "Geri"
+  }, nil, "YouTube: @R&MGAME\nTelegram: @RMSTUDIO MAIN")
+
+  if secim == 1 then basarilar1Menu()
+  elseif secim == 2 then basarilar2Menu()
+  elseif secim == 3 then anaMenu() end
+end
+
+function basarilar1Menu()
+  local secim = gg.choice({
+    "Park Görevi",
+    "Taksi + Teslimat + Kargo",
+    "Geri"
+  }, nil, "YouTube: @R&MGAME.\nTelegram: @RMSTUDIO MAIN")
+
+  if secim == 1 then parkGorevi()
+  elseif secim == 2 then taksiTeslimatKargo()
+  elseif secim == 3 then basarilarMenu() end
+end
+
+function parkGorevi()
+  gg.alert("Seviyeler Bölümüne Gidin ve GG tıkla")
+  while not gg.isVisible() do end
+  gg.setVisible(false)
+  gg.setRanges(gg.REGION_CODE_APP)
+  gg.searchNumber("0.1", 16)
+  gg.getResults(500)
+  gg.editAll("1E-40", 16)
+  gg.toast("Park Görevi Aktif.")
+  gg.clearResults()
+  gg.alert("Seviye 1 başlat, çoğunu hızlıca atlayacak. Bazılarını manuel yapman gerekebilir.")
+end
+
+function taksiTeslimatKargo()
+  local base = gg.getRangesList('libil2cpp.so')[2].start
+  local patch = {
+    {address = base + 0x3569074, value = '528BF520h'},
+    {address = base + 0x3569078, value = '72AB0C60h'},
+    {address = base + 0x356907C, value = '1E270000h'},
+    {address = base + 0x3569080, value = 'D65F03C0h'}
+  }
+  for _, v in ipairs(patch) do v.flags = 4 end
+  gg.setValues(patch)
+  gg.toast("Aktif.")
+  gg.alert("Taksi, teslimat ve kargo görevlerinden birer tane tamamla.")
+end
+
+function basarilar2Menu()
+  local adlar = {
+    "Yıkama", "Duygular", "Yakıt", "Polis", "Lastik", "Tamirci",
+    "Yarış", "Hız", "Bekçi", "Yol Kralı", "Drift Kralı", "Offroad",
+    "Drift Ustası", "Maraton", "Yolcu", "Zaman", "Geri"
+  }
+
+  local kodlar = {
+    {"FreeDriveDb", "0xDC"}, {"FreeDriveDb", "0xFC"}, {"FreeDriveDb", "0xCC"},
+    {"FreeDriveDb", "0xAC"}, {"FreeDriveDb", "0xBC"}, {"FreeDriveDb", "0xEC"},
+    {"FreeDriveDb", "0x9C"}, {"FreeDriveDb", "0x8C"}, {"FreeDriveDb", "0x7C"},
+    {"Powertrain", "0x1A4"}, {"Powertrain", "0x1B8"}, {"Powertrain", "0x1CC"},
+    {"Powertrain", "0x1E0"}, {"LatestMoving", "0xC4"}, {"LatestMoving", "0xD8"},
+    {"AnalyticService", "0x20"}
+  }
+
+  local secim = gg.multiChoice(adlar, nil, "YouTube: @R&MGAME.\nTelegram: @RMSTUDIO MAIN")
+  if not secim then return end
+
+  for i = 1, #kodlar do
+    if secim[i] then ortakFonksiyon(kodlar[i][1], kodlar[i][2], adlar[i]) end
+  end
+  if secim[17] then basarilarMenu() end
+end
+
+function ortakFonksiyon(tablo, offset, ad)
+  degerarama(tablo, offset, false, false, 4)
+  local results = gg.getResults(gg.getResultsCount())
+  local degisenler = {}
+
+  for i, v in ipairs(results) do
+    local val = tostring(v.value)
+    if #val == 10 and val:sub(1,1) == "1" then
+      v.value = "999999"
+      table.insert(degisenler, v)
+    end
+  end
+
+  if #degisenler > 0 then
+    gg.setValues(degisenler)
+    gg.toast(ad .. " başarıyla aktif edildi.")
+  else
+    gg.toast(ad .. " için uygun değer bulunamadı.")
+  end
+
+  gg.clearResults()
+end
+
+function kilitAcmaMenu()
+  local menu = {
+    "Evler Ücretsiz Aç",
+    "Toyota Crown Aç",
+    "Polis Siren Aç",
+    "Oda Şifresini Bul",
+    "ID Değiştir",
+    "Ücretli Arabaları Aç",
+    "Geri"
+  }
+
+  local choice = gg.multiChoice(menu, nil, "YouTube: @R&MGAME.\nTelegram: RMSTUDIO MAIN")
+
+  if not choice then
+    gg.toast("Menü kapatıldı.")
+    return
+  end
+
+  if choice[1] then evleriAc() end
+  if choice[2] then toyotaAc() end
+  if choice[3] then sirenAc() end
+  if choice[4] then sifreBul() end
+  if choice[5] then idDegistir() end
+  if choice[6] then ucretliArabalarAc() end
+  if choice[7] then anaMenu() end
+end
+
+function evleriAc()
+  local C21 = gg.getRangesList("libil2cpp.so")[2].start
+  local YT = {
+    {address = C21 + 0x31EC2B8, value = "D2800000h", flags = 4},
+    {address = C21 + 0x31EC2B8 + 4, value = "D65F03C0h", flags = 4}
+  }
+  gg.setValues(YT)
+  gg.toast("Evler ücretsiz açıldı!")
+end
+
+function toyotaAc()
+  gg.setRanges(gg.REGION_ANONYMOUS)
+  gg.searchNumber("3;0;218;-1:13", 4)
+  gg.refineNumber(218, 4)
+  gg.getResults(500)
+  gg.editAll(0, 4)
+  gg.clearResults()
+  gg.toast("Toyota Crown açıldı!")
+end
+
+function sirenAc()
+  local C21 = gg.getRangesList("libil2cpp.so")[2].start
+  local YT = {
+    {address = C21 + 0x340A2D4, value = "D2800020h", flags = 4},
+    {address = C21 + 0x340A2D4 + 4, value = "D65F03C0h", flags = 4}
+  }
+  gg.setValues(YT)
+  gg.alert("Tüm araçlarda polis sireni açıldı.\n\nKalıcı olması için arabayı yedek hesaba satın.")
+  gg.toast("Polis Siren Açıldı")
+end
+
+function sifreBul()
+  degerarama("RoomDataItem", "0x9C", false, false, 4)
+  local results = gg.getResults(gg.getResultsCount())
+  local valueList = {}
+  for _, v in ipairs(results) do
+    table.insert(valueList, tostring(v.value))
+  end
+
+  local choice = gg.choice(valueList, nil, "Oda şifresini tahmin et. Otomatik kopyalanır.")
+  if choice then
+    local selectedValue = valueList[choice]
+    gg.copyText(selectedValue)
+    gg.toast("Kopyalandı: " .. selectedValue)
+    gg.clearResults()
+  end
+end
+
+function idDegistir()
+  local C21 = gg.getRangesList("libil2cpp.so")[2].start
+  local YT = {
+    {address = C21 + 0x36ECBE8, value = "D2800000h", flags = 4},
+    {address = C21 + 0x36ECBE8 + 4, value = "D65F03C0h", flags = 4}
+  }
+  gg.setValues(YT)
+  gg.alert("Hesaptan çıkış yap ve tekrar giriş yap. Oyunu kapatma!")
+  gg.toast("ID Değiştirme Açıldı")
+end
+
+function ucretliArabalarAc()
+  local C21 = gg.getRangesList("libil2cpp.so")[2].start
+  local aktif = {
+    {address = C21 + 0x2EA20E0, value = "1286C000h", flags = 4},
+    {address = C21 + 0x2EA20E0 + 4, value = "72A77340h", flags = 4},
+    {address = C21 + 0x2EA20E0 + 8, value = "D65F03C0h", flags = 4}
+  }
+  gg.setValues(aktif)
+  gg.alert("İstediğiniz arabayı satın alın, ardından GG'ye tıklayın.")
+  gg.toast("Açıldı")
+
+  while not gg.isVisible() do end
+  gg.setVisible(false)
+
+  local eski = {
+    {address = C21 + 0x2EA20E0, value = "F81D0FFEh", flags = 4},
+    {address = C21 + 0x2EA20E0 + 4, value = "A90157F6h", flags = 4},
+    {address = C21 + 0x2EA20E0 + 8, value = "A9024FF4h", flags = 4}
+  }
+  gg.setValues(eski)
+  gg.toast("Ücretli Arabalar Açıldı")
+end
+
+function modifiyeMenu()
+    local menu = gg.choice({
+        "Lastikler %100",
+        "Lastikler %0",
+        "Hasarsız Araba",
+        "Hasarsız Motor",
+        "Tampon Sök",
+        "Geri"
+    }, nil, "YouTube: @R&MGAME.\nTelegram: @RMSTUDIO MAIN")
+
+    if menu == nil then return end
+    if menu == 1 then lastik100() end
+    if menu == 2 then lastik0() end
+    if menu == 3 then hasarsizAraba() end
+    if menu == 4 then hasarsizMotor() end
+    if menu == 5 then tamponSok() end
+    if menu == 6 then anaMenu() end
+end
+
+function lastik100()
+    gg.alert("Lastikler %100 yapmak için odada olmanız şat!")
+    degerarama("Wheel", "0x23C", false, false, 16)
+    gg.getResults(1000)
+    gg.editAll(99999, 16)
+    gg.clearResults()
+    gg.toast("Lastikler %100 yapıldı!")
+end
+
+function lastik0()
+    gg.alert("Lastikler %0 yapmak için odada olmanız şat!")
+    degerarama("Wheel", "0x23C", false, false, 16)
+    gg.getResults(1000)
+    gg.editAll(0, 16)
+    gg.clearResults()
+    gg.toast("Lastikler %0 yapıldı!")
+end
+
+function hasarsizAraba()
+    local C21 = gg.getRangesList('libil2cpp.so')[2].start
+    local YT = {}
+    YT[1] = {address = C21 + 0x3610724, value = 'D2800000h', flags = 4}
+    YT[2] = {address = C21 + 0x3610724 + 4, value = 'D65F03C0h', flags = 4}
+    gg.setValues(YT)
+    gg.toast("Araba hasarsız hale getirildi!")
+end
+
+function hasarsizMotor()
+    local C21 = gg.getRangesList('libil2cpp.so')[2].start
+    local YT = {}
+    YT[1] = {address = C21 + 0x3358728, value = 'D2800000h', flags = 4}
+    YT[2] = {address = C21 + 0x3358728 + 4, value = 'D65F03C0h', flags = 4}
+    gg.setValues(YT)
+    gg.toast("Motor hasarsız hale getirildi!")
+end
+
+function tamponSok()
+    gg.alert("1. Tamponu satın alın ve GG'ye tıklayın")
+
+    while not gg.isVisible() do end
+    gg.setVisible(false)
+
+    gg.setRanges(gg.REGION_ANONYMOUS)
+    gg.searchNumber("0", gg.TYPE_DWORD)
+    gg.alert("2. Tamponu satın alın")
+    gg.sleep(5000)
+
+    gg.refineNumber("1", gg.TYPE_DWORD)
+    gg.alert("3. Tamponu satın alın")
+    gg.sleep(5000)
+
+    gg.refineNumber("2", gg.TYPE_DWORD)
+    gg.alert("4. Tamponu satın alın")
+    gg.sleep(5000)
+
+    gg.refineNumber("3", gg.TYPE_DWORD)
+    gg.getResults(200)
+    gg.editAll("-1", gg.TYPE_DWORD)
+
+    gg.alert("Başka bir araca gidin ve sonra aynı arabaya tekrar dönün.")
+    gg.toast("Tampon söküldü")
+    gg.clearResults()
+end
+
+
+function kromMenu()
+    local submenu = gg.choice({
+        "Krom = Araba + Jant",
+        "Krom = Far + Çakar + Kaliper + Cam",
+        "Geri"
+    }, nil, "YouTube: @R&MGAME\nTelegram: @RMSTUDIO MAIN")
+
+    if submenu == nil then return end
+    if submenu == 1 then kromArabaJant() 
+    elseif submenu == 2 then kromFarCakarKaliperCam() 
+    elseif submenu == 3 then anaMenu() 
+    end
+end
+
+function kromAramaYap()
+    for i = 1, 3 do
+        gg.alert("Rengi yukarı çekin.")
+        gg.sleep(2000)
+        gg.searchNumber(1, gg.TYPE_FLOAT)
+        
+        gg.alert("Rengi aşağı çekin.")
+        gg.sleep(2000)
+        gg.searchNumber(0, gg.TYPE_FLOAT)
+    end
+end
+
+function kromArabaJant()
+    gg.alert("Araba veya jant rengine gidin\nAYNASAL seçin ve GG'ye tıklayın")
+    while not gg.isVisible() do end
+    gg.setVisible(false)
+    gg.setRanges(gg.REGION_ANONYMOUS)
+
+    kromAramaYap()
+
+    local results = gg.getResults(999)
+    if #results > 0 then
+        gg.editAll(4, gg.TYPE_FLOAT)
+        gg.toast("Krom renk aktif!")
+    else
+        gg.alert("Hiçbir değer bulunamadı!")
+    end
+    gg.clearResults()
+end
+
+function kromFarCakarKaliperCam()
+    local renkler = {"Mavi", "Yeşil", "Beyaz", "Kırmızı", "Sarı", "Turuncu", "Lacivert", "Mor", "Pembe"}
+    local renkKodlari = {
+        ["Mavi"] = "#00FFFF", ["Yeşil"] = "#00FF00", ["Beyaz"] = "#FFFFFF",
+        ["Kırmızı"] = "#FF0000", ["Sarı"] = "#FFFF00", ["Turuncu"] = "#FF9900",
+        ["Lacivert"] = "#0000FF", ["Mor"] = "#9900FF", ["Pembe"] = "#FF00FF"
+    }
+
+    local secim = gg.choice(renkler, nil, "Krom Renk Seçimi")
+    if not secim then return end
+
+    local renk = renkler[secim]
+    local kod = renkKodlari[renk]
+
+    gg.toast("Seçilen Renk Kodu: " .. kod)
+    gg.copyText(kod)
+    gg.alert("Kod kopyalandı!\n\nRegi tam yukarı çekin Renk altında 'kod yeri' kısmına yapıştırın, 'Tamam' deyin ve GG'yi açın.")
+
+    while not gg.isVisible() do end
+    gg.setVisible(false)
+    gg.setRanges(gg.REGION_ANONYMOUS)
+
+    kromAramaYap()
+
+    gg.alert("Renk kodu yerine tıklayın, 'Tamam' deyin ve GG'yi açın.")
+    while not gg.isVisible() do end
+    gg.setVisible(false)
+
+    gg.getResults(999)
+    gg.editAll(4, gg.TYPE_FLOAT)
+    gg.toast("Krom renk aktif!")
+    gg.clearResults()
+end
+
+function ufoMenu()
+    local submenu = gg.choice({
+        "UFO 70",
+        "UFO 90",
+        "UFO 120",
+        "Özel UFO",
+        "Geri"
+    }, nil, "YouTube: @R&MGAME.\nTelegram: @RMSTUDIO MAIN")
+
+    if submenu == 1 then
+        ortakSuspansiyon(70)
+    elseif submenu == 2 then
+        ortakSuspansiyon(90)
+    elseif submenu == 3 then
+        ortakSuspansiyon(120)
+    elseif submenu == 4 then
+        ozelUFO()
+    elseif submenu == 5 or submenu == nil then
+        anaMenu() 
+    end
+end
+
+function ortakSuspansiyon(deger)
+    gg.alert("Arabanın süspansiyon kısmında kamber ve aks uzunluğu her ikisinin ön ve arka çubuğunu tam sağa itir ve kaydet. Geri gel ve GG'ye tıkla.")
+    while not gg.isVisible() do end
+    gg.setVisible(false)
+    gg.setRanges(gg.REGION_ANONYMOUS)
+
+    gg.searchNumber("-10", gg.TYPE_FLOAT)
+    gg.refineNumber("-10", gg.TYPE_FLOAT)
+    local results = gg.getResults(1000)
+    gg.editAll("-" .. deger, gg.TYPE_FLOAT)
+    gg.clearResults()
+
+    gg.searchNumber("0.30", gg.TYPE_FLOAT)
+    gg.refineNumber("0.30", gg.TYPE_FLOAT)
+    gg.getResults(250)
+    gg.editAll("3", gg.TYPE_FLOAT)
+    gg.clearResults()
+
+    gg.alert("Süspansiyon kısmına git, 'bitti' tıkla ve geri gel.")
+    gg.toast("İşlem tamamlandı.")
+end
+
+function ozelUFO()
+    gg.alert("Arabanın süspansiyon kısmında kamber ve aks uzunluğu her ikisinin ön ve arka çubuğunu tam sağa itir ve kaydet. Geri gel ve GG'ye tıkla.")
+    while not gg.isVisible() do end
+    gg.setVisible(false)
+
+    local input = gg.prompt({"Lütfen bir değer girin (örnek: 100)"}, nil, {"number"})
+    if not input or not tonumber(input[1]) then
+        gg.alert("Geçersiz veya boş değer girildi.")
+        return
+    end
+
+    local deger = tonumber(input[1])
+    ortakSuspansiyon(deger)
+end
+
+function govdeMenu()
+local submenu = gg.choice({
+        "İstediğiniz Gövde Kitini Ekle",
+        "İstediğiniz Gövde Kitinin Kodunu Bul",
+        "Geri"
+    }, nil, "𝐘𝐨𝐮𝐓𝐮𝐛𝐞: @𝐂_𝟐𝟏\n𝐓𝐞𝐥𝐞𝐠𝐫𝐚𝐦: @𝐜𝐞𝐛𝐫𝐚𝐢𝐥𝟐")
+    
+    if submenu == 1 then ekgovde() end
+    if submenu == 2 then degerAra() end
+    if submenu == 3 then anaMenu() end
+end
+
+function ekgovde()
+gg.alert ("eklemek istediğin parçayı seçin ve GG tikla\neğer kodları öğrenmek istiyorsanız\nİstediğiniz Gövde Kitinin Kodunu Bul\nseçeneğini kullanarak kodları öğrenebilirsiniz")
+while true do
+if gg.isVisible() then
+break
+else
+end end gg.setVisible(false)
+c=gg.prompt({" \n istediğiniz kodu yazın\nÖRNEK: port bagaj: 6","iptal"},nil,{"number","checkbox"}) if not c then return end if c == nil then cebrail() end gg["clearResults"]() gg["setVisible"](false) if c[2] then return gg["setVisible"](true) end
+degerarama("ExteriorTuning", "0xF0", false, false, 4)
+
+local results = gg.getResults(gg.getResultsCount())
+local filtered = {}
+
+for i, v in ipairs(results) do
+  local value = v.value
+  if value > 0 and value <= 999 then
+    table.insert(filtered, v)
+  end
+end
+
+if #filtered == 0 then
+  gg.alert("1, 2 veya 3 basamaklı pozitif sonuç bulunamadı.")
+else
+  for i, v in ipairs(filtered) do
+    v.value = c[1]
+    v.freeze = false
+  end
+
+  gg.setValues(filtered)
+  gg.alert(" gövde kiti satın alın")
+  gg.clearResults()
+end
+end
+
+function degerAra()
+gg.alert ("kodunu almak istediğin parçayı seçin ve GG tikla")
+while true do
+if gg.isVisible() then
+break
+else
+end end gg.setVisible(false)
+degerarama("ExteriorTuning", "0xF0", false, false, 4)
+
+local results = gg.getResults(50)
+local filteredValues = {}
+
+for i, v in ipairs(results) do
+    local valueStr = tostring(v.value)
+    local valueNum = tonumber(v.value) 
+    if valueNum and valueNum >= 1 and valueNum <= 999 and valueStr:sub(1, 1) ~= "0" then
+        table.insert(filteredValues, valueNum)
+    end
+end
+if #filteredValues > 0 then
+    local resultText = table.concat(filteredValues, "\n")
+    gg.copyText(resultText)
+    gg.alert("kod:\n" .. resultText)
+    gg.clearResults()
+    gg.alert("kod kopyalandı")
+    gg.toast("kod kopyalandı")
+else
+    gg.alert("Uygun değer bulunamadı.")
+end
+end
+
+function hp()
+  local menu = gg.choice({
+        "HP Ayarlanmış Menü",
+        "HP Özel",
+        "Şanzıman Menü",
+        "Geri"
+    }, nil, "𝐘𝐨𝐮𝐓𝐮𝐛𝐞: @𝐂_𝟐𝟏\n𝐓𝐞𝐥𝐞𝐠𝐫𝐚𝐦: @𝐜𝐞𝐛𝐫𝐚𝐢𝐥𝟐")
+
+    if menu == 1 then hpMenu() end
+    if menu == 2 then hpOzel() end
+    if menu == 3 then sanzimanMenu() end
+    if menu == 4 then anaMenu() end
+end
+
+function hpMenu()
+    local menu = gg.choice({
+        "HP 99",
+        "HP 300",
+        "HP 324",
+        "HP 400",
+        "HP 414",
+        "HP 925",
+        "HP 1695",
+        "HP 1695 (Hızlı)",
+        "Geri"
+    }, nil, "𝐘𝐨𝐮𝐓𝐮𝐛𝐞: @𝐂_𝟐𝟏\n𝐓𝐞𝐥𝐞𝐠𝐫𝐚𝐦: @𝐜𝐞𝐛𝐫𝐚𝐢𝐥𝟐")
+
+    if menu == 1 then hpAyarla("99", "2300", "8000", "7789") end
+    if menu == 2 then hpAyarla("300", "3000", "8000", "7789") end
+    if menu == 3 then hpAyarla("324", "2300", "8000", "7789") end
+    if menu == 4 then hpAyarla("400", "2300", "8000", "7789") end
+    if menu == 5 then hpAyarla("414", "2300", "8000", "7789") end
+    if menu == 6 then hpAyarla("925", "2300", "8000", "7789") end
+    if menu == 7 then hpAyarla("1695", "2254", "7000", "3500") end
+    if menu == 8 then hpAyarla("1695", "2254", "1000", "1001") end
+    if menu == 9 then hp() end
+end
+
+function hpAyarla(hp, deger2, deger3, deger4)
+    gg.alert("L4 2.0 satın alın ve GG'ye tıklayın")
+    while not gg.isVisible() do gg.sleep(100) end
+    gg.setVisible(false)
+    gg.setRanges(gg.REGION_ANONYMOUS)
+
+    local degerler = {
+        {"150", hp},
+        {"220", deger2},
+        {"5900", deger3},
+        {"4100", deger4}
+    }
+
+    for _, v in ipairs(degerler) do
+        gg.searchNumber(v[1], gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
+        local sonuc = gg.getResults(1000)
+        gg.editAll(v[2], gg.TYPE_FLOAT)
+        gg.clearResults()
+    end
+
+    gg.alert("UYGULA butonuna tıklayın")
+end
+
+function hpOzel()
+    local menu = gg.choice({
+        "L4 2.0",
+        "L4 2.5",
+        "V6 3.0",
+        "V6 3.5",
+        "V8 4.0",
+        "V8 4.5",
+        "V10 5.0",
+        "V10 6.0",
+        "V12 6.0",
+        "V16 8.0",
+        "Geri"
+    }, nil, "YouTube: @C_21\nTelegram: @cebrail2")
+
+    if menu == 1 then L4_2_0() end
+    if menu == 2 then L4_2_5() end
+    if menu == 3 then V6_3_0() end
+    if menu == 4 then V6_3_5() end
+    if menu == 5 then V8_4_0() end
+    if menu == 6 then V8_4_5() end
+    if menu == 7 then V10_5_0() end
+    if menu == 8 then V10_6_0() end
+    if menu == 9 then V12_6_0() end
+    if menu == 10 then V16_8_0() end
+    if menu == 11 then hp() end
+end
+
+function bekle()
+    while true do
+        if gg.isVisible(true) then
+            gg.setVisible(false)
+            break
+        end
+        gg.sleep(100)
+    end
+end
+
+function aramaVeDegistir(aranan, yeniDeger)
+    gg.clearResults()
+    gg.setRanges(gg.REGION_ANONYMOUS)
+    gg.searchNumber(aranan, gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
+    local sonuc = gg.getResults(1000)
+    if #sonuc > 0 then
+        gg.editAll(yeniDeger, gg.TYPE_FLOAT)
+        gg.toast("Değer değiştirildi: " .. aranan .. " �? " .. yeniDeger)
+    else
+        gg.toast("Değer bulunamadı: " .. aranan)
+    end
+    gg.clearResults()
+end
+
+function surumIsle(hatirlatma, hp, tork, icHp, icTork)
+    gg.alert(hatirlatma)
+    bekle()
+
+    local girdi = gg.prompt(
+        {"Araç HP", "Araç Tork", "İç HP", "İç Tork", "Menüye Geri Dön"},
+        nil,
+        {"number", "number", "number", "number", "checkbox"}
+    )
+
+    if not girdi then return end
+    if girdi[5] then return gg.setVisible(true) end
+
+    aramaVeDegistir(hp, girdi[1])
+    aramaVeDegistir(tork, girdi[2])
+    aramaVeDegistir(icHp, girdi[3])
+    aramaVeDegistir(icTork, girdi[4])
+
+    gg.alert("UYGULA'ya tıklayın")
+end
+
+function L4_2_0() surumIsle("L4 2.0 satın al ve GG'ye tıkla", "150", "220", "5900", "4100") end
+function L4_2_5() surumIsle("L4 2.5 satın al ve GG'ye tıkla", "90", "300", "5900", "4100") end
+function V6_3_0() surumIsle("V6 3.0 satın al ve GG'ye tıkla", "240", "310", "6800", "4500") end
+function V6_3_5() surumIsle("V6 3.5 satın al ve GG'ye tıkla", "280", "350", "6300", "4500") end
+function V8_4_0() surumIsle("V8 4.0 satın al ve GG'ye tıkla", "360", "500", "6300", "3400") end
+function V8_4_5() surumIsle("V8 4.5 satın al ve GG'ye tıkla", "415", "430", "7000", "4000") end
+function V10_5_0() surumIsle("V10 5.0 satın al ve GG'ye tıkla", "500", "620", "7000", "5600") end
+function V10_6_0() surumIsle("V10 6.0 satın al ve GG'ye tıkla", "580", "680", "7000", "5000") end
+function V12_6_0() surumIsle("V12 6.0 satın al ve GG'ye tıkla", "612", "1000", "7000", "3500") end
+function V16_8_0() surumIsle("V16 8.0 satın al ve GG'ye tıkla", "1120", "1250", "7000", "3500") end
+
+
+
+
+function sanzimanMenu()
+    local menu = gg.choice({
+        "Şanzıman 1E-20",
+        "Şanzıman 1E-30",
+        "Özel Şanzıman",
+        "Geri"
+    }, nil, "YouTube: @R&MGAME\nTelegram: @RMSTUDIO MAIN")
+
+    if menu == 1 then sanziman1E20() end
+    if menu == 2 then sanziman1E30() end
+    if menu == 3 then sanzimanOzel() end
+    if menu == 4 then hp() end
+end
+
+function sanziman1E20()
+   YouTube = gg.getRangesList('libil2cpp.so')[2].start
+    local baseAddress = YouTube + 0x152348C
+    setvalue(baseAddress + 0x00, 16, 1E-20)
+    gg.alert("Şanzıman 1E-20 ayarlandı!\nŞanzıman satın al")
+end
+
+function sanziman1E30()
+    YouTube = gg.getRangesList('libil2cpp.so')[2].start
+    local baseAddress = YouTube + 0x152348C
+    setvalue(baseAddress + 0x00, 16, 1E-30)
+    gg.alert("Şanzıman 1E-30 ayarlandı!\nŞanzıman satın al")
+end
+
+function sanzimanOzel()
+    local input = gg.prompt({"Şanzıman Girin:"}, {""}, {"number"})  
+if input == nil then  
+    gg.toast("İşlem iptal edildi!")  
+    return  
+end  
+
+    YouTube = gg.getRangesList('libil2cpp.so')[2].start
+    local baseAddress = YouTube + 0x152348C
+    setvalue(baseAddress + 0x00, 16, input[1])
+
+gg.toast("Şanzıman başarıyla\nŞanzıman satın al\n değiştirildi: " .. input[1])
+end
+
+
+
+
+function degerarama(sinif_adi, ofset, zorla, bit32_mi, deger_tipi)
+    girdi_bilgileri = {}
+    girdi_bilgileri[1] = sinif_adi
+    girdi_bilgileri[2] = ofset
+    girdi_bilgileri[3] = zorla
+    girdi_bilgileri[4] = bit32_mi
+    girdi_tipi = deger_tipi
+    baslat()
+end
+
+function dongu_kontrol()
+    if kullanici_modu == 1 then
+        arayuz_goster()
+    elseif hata_kodu == 3 then
+        os.exit()
+    end
+end
+
+function sonuc_kontrol(mesaj)
+    if hata_kodu == 1 then
+        ikinci_bulunamadi(mesaj)
+    elseif hata_kodu == 2 then
+        ucuncu_bulunamadi(mesaj)
+    elseif hata_kodu == 3 then
+        dorduncu_bulunamadi(mesaj)
+    else
+        ilk_bulunamadi(mesaj)
+    end
+end
+
+function ilk_bulunamadi(mesaj)
+    if sonuc_sayisi == 0 then
+        gg.clearResults()
+        gg.clearList()
+        hata1 = mesaj
+        hata_kodu = 1
+        ikinci_baslat()
+    end
+end
+
+function kullanici_girdisi_al()
+::tekrar::
+gg.clearResults()
+if kullanici_modu == 1 then
+    if girdi_bilgileri == nil then
+        varsayilan1 = ""
+        varsayilan2 = ""
+        varsayilan3 = false
+        varsayilan4 = false
+    else
+        varsayilan1 = girdi_bilgileri[1]
+        varsayilan2 = girdi_bilgileri[2]
+        varsayilan3 = girdi_bilgileri[3]
+        varsayilan4 = girdi_bilgileri[4]
+    end
+    girdi_bilgileri = gg.prompt(
+        {"Sınıf Adı:", "Ofset:", "Daha Zorla -- (doğruluğu azaltır)", "32 bit için dene"},
+        {varsayilan1, varsayilan2, varsayilan3, varsayilan4},
+        {"text", "text", "checkbox", "checkbox"}
+    )
+    if girdi_bilgileri ~= nil then
+        if (girdi_bilgileri[1] == "") or (girdi_bilgileri[2] == "") then
+            goto tekrar
+        end
+    else
+        goto tekrar
+    end
+    girdi_tipi = gg.choice({"1. Bayt / Boolean", "2. Dword / 32 bit Tam sayı", "3. Qword / 64 bit Tam sayı", "4. Float", "5. Double"})
+    if girdi_tipi == 1 then
+        girdi_tipi = gg.TYPE_BYTE
+    elseif girdi_tipi == 2 then
+        girdi_tipi = gg.TYPE_DWORD
+    elseif girdi_tipi == 3 then
+        girdi_tipi = gg.TYPE_QWORD
+    elseif girdi_tipi == 4 then
+        girdi_tipi = gg.TYPE_FLOAT
+    elseif girdi_tipi == 5 then
+        girdi_tipi = gg.TYPE_DOUBLE
+    end
+    if girdi_tipi ~= gg.TYPE_BYTE then
+        if (girdi_bilgileri[2] % 4) ~= 0 then
+            goto tekrar
+        end
+    end
+end
+hata_kodu = 0
+end
+
+function O_ilk_aramasi()
+    gg.setVisible(false)
+    kullanici_girdisi = ":" .. girdi_bilgileri[1]
+    if girdi_bilgileri[3] then
+        ofset = 25
+    else
+        ofset = 0
+    end
+end
+
+function O_detayli_arama()
+    if hata_kodu > 1 then
+        gg.setRanges(gg.REGION_C_ALLOC)
+    else
+        gg.setRanges(gg.REGION_OTHER)
+    end
+    gg.searchNumber(kullanici_girdisi, gg.TYPE_BYTE)
+    sonuc_sayisi = gg.getResultsCount()
+    if sonuc_sayisi == 0 then
+        sonuc_kontrol("O_detayli_arama")
+        return 0
+    end
+    aranan = gg.getResults(1)
+    gg.refineNumber(aranan[1].value, gg.TYPE_BYTE)
+    sonuc_sayisi = gg.getResultsCount()
+    if sonuc_sayisi == 0 then
+        sonuc_kontrol("O_detayli_arama")
+        return 0
+    end
+    degerler = gg.getResults(sonuc_sayisi)
+    gg.addListItems(degerler)
+end
+
+function CA_pointer_arama()
+    gg.clearResults()
+    gg.setRanges(gg.REGION_C_ALLOC | gg.REGION_ANONYMOUS | gg.REGION_OTHER)
+    gg.loadResults(gg.getListItems())
+    gg.searchPointer(ofset)
+    sonuc_sayisi = gg.getResultsCount()
+    if sonuc_sayisi == 0 then
+        sonuc_kontrol("CA_pointer_arama")
+        return 0
+    end
+    sonuc = gg.getResults(sonuc_sayisi)
+    gg.clearList()
+    gg.addListItems(sonuc)
+end
+
+function CA_ofset_uygula()
+    if girdi_bilgileri[4] then
+        ofset_uygula = 0xfffffffffffffff8
+    else
+        ofset_uygula = 0xfffffffffffffff0
+    end
+    yer_degistir = false
+    liste = gg.getListItems()
+    if not yer_degistir then gg.removeListItems(liste) end
+    for i, v in ipairs(liste) do
+        v.address = v.address + ofset_uygula
+        if yer_degistir then v.name = v.name .. " #2" end
+    end
+    gg.addListItems(liste)
+end
+
+function Q_dogrula_duzelt()
+    gg.setRanges(gg.REGION_C_ALLOC | gg.REGION_ANONYMOUS | gg.REGION_OTHER)
+    gg.loadResults(gg.getListItems())
+    gg.clearList()
+    sonuc_sayisi = gg.getResultsCount()
+    if sonuc_sayisi == 0 then
+        sonuc_kontrol("Q_dogrula_duzelt")
+        return 0
+    end
+    liste = gg.getResults(1000)
+    gg.clearResults()
+    i, c = 1, 1
+    yeni = {}
+    while (i - 1) < sonuc_sayisi do
+        liste[i].address = liste[i].address + 0xb400000000000000
+        gg.searchNumber(liste[i].address, gg.TYPE_QWORD)
+        adet = gg.getResultsCount()
+        if 0 < adet then
+            sonuc = gg.getResults(adet)
+            for n = 1, adet do
+                yeni[c] = {}
+                yeni[c].address = sonuc[n].address
+                yeni[c].flags = 32
+                c = c + 1
+            end
+        end
+        gg.clearResults()
+        i = i + 1
+    end
+    gg.addListItems(yeni)
+end
+
+function A_deger_al()
+    gg.setRanges(gg.REGION_C_ALLOC | gg.REGION_ANONYMOUS | gg.REGION_OTHER)
+    gg.loadResults(gg.getListItems())
+    gg.clearList()
+    gg.searchPointer(ofset)
+    sonuc_sayisi = gg.getResultsCount()
+    if sonuc_sayisi == 0 then
+        sonuc_kontrol("A_deger_al")
+        return 0
+    end
+    bulunan = gg.getResults(sonuc_sayisi)
+    gg.addListItems(bulunan)
+end
+
+function A_kesinlik_arttir()
+    gg.setRanges(gg.REGION_C_ALLOC | gg.REGION_ANONYMOUS | gg.REGION_OTHER)
+    gg.loadResults(gg.getListItems())
+    gg.clearList()
+    gg.searchPointer(ofset)
+    sonuc_sayisi = gg.getResultsCount()
+    if sonuc_sayisi == 0 then
+        sonuc_kontrol("A_kesinlik_arttir")
+        return 0
+    end
+    liste = gg.getResults(sonuc_sayisi)
+    yeni_liste = {}
+    for i = 1, sonuc_sayisi do
+        yeni_liste[i] = {address = liste[i].value, flags = 32}
+    end
+    gg.addListItems(yeni_liste)
+end
+
+function A_ofset_uygula()
+    yerel_kayit = gg.getListItems()
+    for i, v in ipairs(yerel_kayit) do
+        v.address = v.address + girdi_bilgileri[2]
+        v.flags = girdi_tipi
+    end
+    gg.clearResults()
+    gg.clearList()
+    gg.loadResults(yerel_kayit)
+    sonuc_sayisi = gg.getResultsCount()
+    if sonuc_sayisi == 0 then
+        sonuc_kontrol("A_ofset_uygula")
+        return 0
+    end
+end
+
+function baslat()
+    kullanici_girdisi_al()
+    O_ilk_aramasi()
+    O_detayli_arama()
+    if hata_kodu > 0 then return 0 end
+    CA_pointer_arama()
+    if hata_kodu > 0 then return 0 end
+    CA_ofset_uygula()
+    if hata_kodu > 0 then return 0 end
+    A_deger_al()
+    if hata_kodu > 0 then return 0 end
+    if ofset == 0 then A_kesinlik_arttir() end
+    if hata_kodu > 0 then return 0 end
+    A_ofset_uygula()
+    if hata_kodu > 0 then return 0 end
+    dongu_kontrol()
+end
+
+
+while true do
+  if gg.isVisible(true) then
+    gg.setVisible(false)
+    anaMenu()
+  end
+end
