@@ -4,7 +4,7 @@ local key_url = "https://raw.githubusercontent.com/CPMRm/rmstudio-gg-keydata/mai
 local telegram_bot_token = "8404020167:AAFZPUbKUUnwTDmHJEw_WEtRhH3Nx5dGIWI"
 local telegram_chat_id = "6662550521"
 
-function 發送Telegram通知(message)
+function sendTelegramNotification(message)
   local function urlencode(str)
     if (str) then
       str = str:gsub("\n", "%%0A")
@@ -19,7 +19,7 @@ function 發送Telegram通知(message)
   gg.makeRequest(url)
 end
 
-function logo動畫()
+function logoAnimation()
   local logo_text = {
     "⚡",
     "⚡R",
@@ -40,14 +40,14 @@ function logo動畫()
   end
 end
 
-function 顯示主畫面資訊()
+function showMainScreenInfo()
   local now = os.date("*t")
   local datetime = string.format("%04d/%02d/%02d %02d:%02d",
     now.year, now.month, now.day, now.hour, now.min)
   gg.alert("⚡RMSTUDIO⚡ Ryder Chang 🇹🇼\n🕒 "..datetime)
 end
 
-function get_device_id()
+function getDeviceId()
   if gg.getDeviceId then
     return gg.getDeviceId()
   else
@@ -59,7 +59,7 @@ function get_device_id()
   end
 end
 
-function 下載密鑰資料()
+function downloadKeyData()
   gg.toast("開始從雲端下載密鑰資料...")
   local resp = gg.makeRequest(key_url)
   if resp and resp.content and #resp.content > 0 then
@@ -79,25 +79,25 @@ function 下載密鑰資料()
   end
 end
 
-function 讀取密鑰資料()
+function readKeyData()
   local data = {}
   local file = io.open(key_file_path, "r")
   if not file then return data end
   for line in file:lines() do
     local key, bind, user, name, expire = line:match("([^|]+)|([^|]+)|([^|]+)|([^|]+)|([^|]+)")
     if key then
-      table.insert(data, {密鑰=key, 綁定=bind, 使用者=user, 名稱=name, 到期日=expire})
+      table.insert(data, {key = key, bind = bind, user = user, name = name, expire = expire})
     end
   end
   file:close()
   return data
 end
 
-function 計算剩餘天數(到期日)
-  if 到期日 == "PERMANENT" then
+function calculateRemainingDays(expireDate)
+  if expireDate == "PERMANENT" then
     return 99999
   end
-  local y, m, d = 到期日:match("(%d+)-(%d+)-(%d+)")
+  local y, m, d = expireDate:match("(%d+)-(%d+)-(%d+)")
   if not y then return -1 end
   local expiry = os.time{year=tonumber(y), month=tonumber(m), day=tonumber(d)}
   local today = os.time()
@@ -105,11 +105,11 @@ function 計算剩餘天數(到期日)
   return diff
 end
 
-function 修改綁定資料(密鑰, 新綁定)
-  local keys = 讀取密鑰資料()
+function updateBindingData(key, newBinding)
+  local keys = readKeyData()
   for i, v in ipairs(keys) do
-    if v.密鑰 == 密鑰 then
-      v.綁定 = 新綁定
+    if v.key == key then
+      v.bind = newBinding
     end
   end
   local f = io.open(key_file_path, "w")
@@ -118,14 +118,14 @@ function 修改綁定資料(密鑰, 新綁定)
     return false
   end
   for _, v in ipairs(keys) do
-    f:write(string.format("%s|%s|%s|%s|%s\n", v.密鑰, v.綁定, v.使用者, v.名稱, v.到期日))
+    f:write(string.format("%s|%s|%s|%s|%s\n", v.key, v.bind, v.user, v.name, v.expire))
   end
   f:close()
   return true
 end
 
-function 驗證密鑰()
-  local keys = 讀取密鑰資料()
+function verifyKey()
+  local keys = readKeyData()
   if #keys == 0 then
     gg.alert("❌ 密鑰資料讀取失敗或檔案為空")
     return false
@@ -133,30 +133,30 @@ function 驗證密鑰()
   local input = gg.prompt({"請輸入您的密鑰🔐："}, nil, {"text"})
   if not input or not input[1] then os.exit() end
   local inputKey = input[1]
-  local device_id = get_device_id()
+  local device_id = getDeviceId()
   local now = os.date("%Y-%m-%d %H:%M:%S")
 
   for _, info in ipairs(keys) do
-    if info.密鑰 == inputKey then
-      if info.綁定 == "UNBOUND" then
+    if info.key == inputKey then
+      if info.bind == "UNBOUND" then
         gg.toast("綁定裝置中...")
-        if not 修改綁定資料(inputKey, device_id) then
+        if not updateBindingData(inputKey, device_id) then
           gg.alert("❌ 綁定裝置失敗")
           return false
         end
-        info.綁定 = device_id
-        local msg = string.format("📌 新裝置綁定\n🔑 密鑰：%s\n👤 使用者：%s\n📱 裝置ID：%s\n🕒 時間：%s", inputKey, info.使用者, device_id, now)
-        發送Telegram通知(msg)
+        info.bind = device_id
+        local msg = string.format("📌 新裝置綁定\n🔑 密鑰：%s\n👤 使用者：%s\n📱 裝置ID：%s\n🕒 時間：%s", inputKey, info.user, device_id, now)
+        sendTelegramNotification(msg)
       end
-      if info.綁定 == device_id then
-        local 剩餘 = 計算剩餘天數(info.到期日)
-        if 剩餘 >= 0 then
-          gg.alert(string.format("✅ 驗證成功\n使用者: %s\n密鑰名稱: %s\n剩餘天數: %d 天", info.使用者, info.名稱, 剩餘))
-          
-          user_name = info.使用者
-          key_name = info.名稱
-          remaining_days = 剩餘
-          
+      if info.bind == device_id then
+        local remaining = calculateRemainingDays(info.expire)
+        if remaining >= 0 then
+          gg.alert(string.format("✅ 驗證成功\n使用者: %s\n密鑰名稱: %s\n剩餘天數: %d 天", info.user, info.name, remaining))
+
+          user_name = info.user
+          key_name = info.name
+          remaining_days = remaining
+
           local script_version = "⚡RMSTUDIO⚡️ VIP腳本👑 V1.1"
           local msg = string.format(
   "✅ 使用者登入通知\n" ..
@@ -166,9 +166,9 @@ function 驗證密鑰()
   "🕒 時間：%s\n" ..
   "⏳ 剩餘天數：%d\n" ..
   "🧑‍💻 腳本版本：%s",
-  info.使用者, info.名稱, device_id, now, 剩餘, script_version
+  info.user, info.name, device_id, now, remaining, script_version
 )
-          發送Telegram通知(msg)
+          sendTelegramNotification(msg)
           return true
         else
           gg.alert("⛔ 此密鑰已過期")
@@ -176,26 +176,26 @@ function 驗證密鑰()
         end
       else
         gg.alert("❌ 此密鑰已綁定其他裝置")
-        local msg = string.format("⚠️ 密鑰綁定錯誤\n密鑰：%s\n欲使用裝置：%s\n已綁定：%s\n🕒 時間：%s", inputKey, device_id, info.綁定, now)
-        發送Telegram通知(msg)
+        local msg = string.format("⚠️ 密鑰綁定錯誤\n密鑰：%s\n欲使用裝置：%s\n已綁定：%s\n🕒 時間：%s", inputKey, device_id, info.bind, now)
+        sendTelegramNotification(msg)
         return false
       end
     end
   end
   gg.alert("❌ 無效密鑰")
   local msg = string.format("❌ 無效密鑰嘗試\n輸入密鑰：%s\n裝置ID：%s\n🕒 時間：%s", inputKey, device_id, now)
-  發送Telegram通知(msg)
+  sendTelegramNotification(msg)
   return false
 end
 
-function 原廠聲浪數據車()
+function factorySoundDataCar()
   gg.alert("🔊 功能：414原廠聲浪數據車")
 
   -- 左上
-  local 左上 = gg.prompt({"左上：請輸入數字"}, nil, {"number"})
-  if 左上 and 左上[1] then
+  local topLeft = gg.prompt({"左上：請輸入數字"}, nil, {"number"})
+  if topLeft and topLeft[1] then
     gg.clearResults()
-    gg.searchNumber(tonumber(左上[1]), gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
+    gg.searchNumber(tonumber(topLeft[1]), gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
     gg.getResults(100)
     gg.editAll("414", gg.TYPE_FLOAT)
     gg.clearResults()
@@ -206,10 +206,10 @@ function 原廠聲浪數據車()
   end
 
   -- 右上
-  local 右上 = gg.prompt({"右上：請輸入數字"}, nil, {"number"})
-  if 右上 and 右上[1] then
+  local topRight = gg.prompt({"右上：請輸入數字"}, nil, {"number"})
+  if topRight and topRight[1] then
     gg.clearResults()
-    gg.searchNumber(tonumber(右上[1]), gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
+    gg.searchNumber(tonumber(topRight[1]), gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
     gg.getResults(100)
     gg.editAll("8000", gg.TYPE_FLOAT)
     gg.clearResults()
@@ -220,10 +220,10 @@ function 原廠聲浪數據車()
   end
 
   -- 左下
-  local 左下 = gg.prompt({"左下：請輸入數字"}, nil, {"number"})
-  if 左下 and 左下[1] then
+  local bottomLeft = gg.prompt({"左下：請輸入數字"}, nil, {"number"})
+  if bottomLeft and bottomLeft[1] then
     gg.clearResults()
-    gg.searchNumber(tonumber(左下[1]), gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
+    gg.searchNumber(tonumber(bottomLeft[1]), gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
     gg.getResults(100)
     gg.editAll("2254", gg.TYPE_FLOAT)
     gg.clearResults()
@@ -234,10 +234,10 @@ function 原廠聲浪數據車()
   end
 
   -- 右下
-  local 右下 = gg.prompt({"右下：請輸入數字"}, nil, {"number"})
-  if 右下 and 右下[1] then
+  local bottomRight = gg.prompt({"右下：請輸入數字"}, nil, {"number"})
+  if bottomRight and bottomRight[1] then
     gg.clearResults()
-    gg.searchNumber(tonumber(右下[1]), gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
+    gg.searchNumber(tonumber(bottomRight[1]), gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
     gg.getResults(100)
     gg.editAll("7997", gg.TYPE_FLOAT)
     gg.clearResults()
@@ -261,10 +261,10 @@ function wallHack()
   gg.toast("✅穿牆修改完成")
 end
 
-function 綠鈔()
+function greenCurrency()
   gg.setVisible(false)
   gg.alert("請先到『第一關』，再點擊 GG 的 Logo 開始修改")
-  
+
   -- 等待使用者點擊 GG logo
   while true do
     if gg.isVisible(true) then
@@ -300,7 +300,7 @@ function 綠鈔()
   gg.alert("請再到『第二關』，並且完成該關卡，如果第二關沒有看到秒數變成50,000,000，請重新打開遊戲重新修改")
 end
 
-function 變速箱修改()
+function modifyshifttime()
   gg.setVisible(false)
   gg.alert("請先購買此車輛的變速箱\n完成後請點 GG 的圖示開始進行修改")
 
@@ -328,15 +328,15 @@ function 變速箱修改()
   gg.alert("修改完成，請再購買一次變速箱")
 end
 
-function 修改車重()
-  local 動畫 = {
+function modifyCarWeight()
+  local animation = {
     "🚗 車重修改準備中...",
     "請稍候...",
     "🔧 準備開始修改車重..."
   }
 
-  for i = 1, #動畫 do
-    gg.toast(動畫[i])
+  for i = 1, #animation do
+    gg.toast(animation[i])
     gg.sleep(500)
   end
 
@@ -362,12 +362,12 @@ function 修改車重()
     return
   end
 
-  local 原始車重 = tonumber(input[1])
-  local 想修改成的車重 = tonumber(input[2])
+  local originalWeight = tonumber(input[1])
+  local desiredWeight = tonumber(input[2])
 
   gg.clearResults()
   gg.setRanges(gg.REGION_CODE_APP) -- XA 區域
-  gg.searchNumber(原始車重, gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
+  gg.searchNumber(originalWeight, gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
   local results = gg.getResults(100)
 
   if #results == 0 then
@@ -376,23 +376,23 @@ function 修改車重()
   end
 
   for i, v in ipairs(results) do
-    v.value = 想修改成的車重
+    v.value = desiredWeight
     v.flags = gg.TYPE_FLOAT
   end
   gg.setValues(results)
 
-  gg.toast("✅ 車重已修改為 " .. 想修改成的車重)
+  gg.toast("✅ 車重已修改為 " .. desiredWeight)
 end
 
-function 真正的懸浮車()
-  local 動畫 = {
+function realHoverCar()
+  local animation = {
     "🚗 懸浮高度準備中...",
     "請稍候...",
     "🔧 準備開始修改懸浮數值..."
   }
 
-  for i = 1, #動畫 do
-    gg.toast(動畫[i])
+  for i = 1, #animation do
+    gg.toast(animation[i])
     gg.sleep(500)
   end
 
@@ -407,7 +407,7 @@ function 真正的懸浮車()
     gg.sleep(100)
   end
 
-  local 原始值 = 0.34
+  local originalValue = 0.34
   local input = gg.prompt(
     {"👉請輸入要修改成的新數值（例如 50.0）"},
     nil,
@@ -419,28 +419,28 @@ function 真正的懸浮車()
     return
   end
 
-  local 新值 = tonumber(input[1])
+  local newValue = tonumber(input[1])
 
   gg.clearResults()
   gg.setRanges(gg.REGION_CODE_APP) -- 記憶範圍設為 XA
-  gg.searchNumber(原始值, gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
+  gg.searchNumber(originalValue, gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
   local results = gg.getResults(100)
 
   if #results == 0 then
-    gg.alert("❌ 沒有找到數值：" .. 原始值 .. "\n請確認進入正確畫面或重試")
+    gg.alert("❌ 沒有找到數值：" .. originalValue .. "\n請確認進入正確畫面或重試")
     return
   end
 
   for i, v in ipairs(results) do
-    v.value = 新值
+    v.value = newValue
     v.flags = gg.TYPE_FLOAT
   end
   gg.setValues(results)
 
-  gg.toast("✅ 懸浮數值已修改為 " .. 新值)
+  gg.toast("✅ 懸浮數值已修改為 " .. newValue)
 end
 
-function 修改名字含色碼()
+function modifyNameWithColorCode()
   gg.setVisible(false)
 
   -- 🔍 改名搜尋步驟（略，與前相同）
@@ -476,66 +476,66 @@ function 修改名字含色碼()
 
   gg.alert("✅ 修改成功！你現在可以自由修改名字，限制：色碼+名稱總共最多 20 字")
 
-local 色碼選項 = {
-  "💛黃色（808000）", "💙亮藍（00BFFF）", "❤️紅色（FF0000）", "💚亮綠（00FF00）",
-  "🖤黑色（000000）", "💜紫色（800080）", "🩶灰色（808080）", "🧡橘色（FFA500）",
-  "🌸粉紅（FFC0CB）", "🩵青藍（00CED1）", "🟤棕色（8B4513）", "💙深藍（0000CD）",
-  "💚暗綠（006400）", "🟡金黃（FFD700）", "🟥酒紅（8B0000）", "🌿草綠（7CFC00）",
-  "🩷玫紅（FF1493）", "🔵寶藍（4169E1）", "🟣靛藍（4B0082）", "🌺紫紅（DA70D6）",
-  "🍊橘紅（FF6347）", "🍋檸檬黃（FFFACD）", "🫐藍紫（6A5ACD）", "🌊淡藍（87CEFA）",
-  "🌼奶黃（FAFAD2）", "🥝淺綠（98FB98）", "🫒橄欖綠（9ACD32）", "🪻薰衣草（E6E6FA）",
-  "🍬嫩紫（D8BFD8）", "🫧天藍（ADD8E6）", "🌷淺粉紅（FFB6C1）", "🌿薄荷綠（AAF0D1）",
-  "🌞杏黃（FFE4B5）", "🧊冰藍（AFEEEE）", "🪵赤陶（D2691E）", "🧁奶茶（F5DEB3）",
-  "🌸櫻花粉（FF69B4）", "🩰淺紫紅（DB7093）", "🍡蜜桃紅（FFDAB9）", "🌻向日黃（FFF8DC）"
-}
+  local colorOptions = {
+    "💛黃色（808000）", "💙亮藍（00BFFF）", "❤️紅色（FF0000）", "💚亮綠（00FF00）",
+    "🖤黑色（000000）", "💜紫色（800080）", "🩶灰色（808080）", "🧡橘色（FFA500）",
+    "🌸粉紅（FFC0CB）", "🩵青藍（00CED1）", "🟤棕色（8B4513）", "💙深藍（0000CD）",
+    "💚暗綠（006400）", "🟡金黃（FFD700）", "🟥酒紅（8B0000）", "🌿草綠（7CFC00）",
+    "🩷玫紅（FF1493）", "🔵寶藍（4169E1）", "🟣靛藍（4B0082）", "🌺紫紅（DA70D6）",
+    "🍊橘紅（FF6347）", "🍋檸檬黃（FFFACD）", "🫐藍紫（6A5ACD）", "🌊淡藍（87CEFA）",
+    "🌼奶黃（FAFAD2）", "🥝淺綠（98FB98）", "🫒橄欖綠（9ACD32）", "🪻薰衣草（E6E6FA）",
+    "🍬嫩紫（D8BFD8）", "🫧天藍（ADD8E6）", "🌷淺粉紅（FFB6C1）", "🌿薄荷綠（AAF0D1）",
+    "🌞杏黃（FFE4B5）", "🧊冰藍（AFEEEE）", "🪵赤陶（D2691E）", "🧁奶茶（F5DEB3）",
+    "🌸櫻花粉（FF69B4）", "🩰淺紫紅（DB7093）", "🍡蜜桃紅（FFDAB9）", "🌻向日黃（FFF8DC）"
+  }
 
-local 色碼值 = {
-  "[808000]", "[00BFFF]", "[FF0000]", "[00FF00]",
-  "[000000]", "[800080]", "[808080]", "[FFA500]",
-  "[FFC0CB]", "[00CED1]", "[8B4513]", "[0000CD]",
-  "[006400]", "[FFD700]", "[8B0000]", "[7CFC00]",
-  "[FF1493]", "[4169E1]", "[4B0082]", "[DA70D6]",
-  "[FF6347]", "[FFFACD]", "[6A5ACD]", "[87CEFA]",
-  "[FAFAD2]", "[98FB98]", "[9ACD32]", "[E6E6FA]",
-  "[D8BFD8]", "[ADD8E6]", "[FFB6C1]", "[AAF0D1]",
-  "[FFE4B5]", "[AFEEEE]", "[D2691E]", "[F5DEB3]",
-  "[FF69B4]", "[DB7093]", "[FFDAB9]", "[FFF8DC]"
-}
+  local colorValues = {
+    "[808000]", "[00BFFF]", "[FF0000]", "[00FF00]",
+    "[000000]", "[800080]", "[808080]", "[FFA500]",
+    "[FFC0CB]", "[00CED1]", "[8B4513]", "[0000CD]",
+    "[006400]", "[FFD700]", "[8B0000]", "[7CFC00]",
+    "[FF1493]", "[4169E1]", "[4B0082]", "[DA70D6]",
+    "[FF6347]", "[FFFACD]", "[6A5ACD]", "[87CEFA]",
+    "[FAFAD2]", "[98FB98]", "[9ACD32]", "[E6E6FA]",
+    "[D8BFD8]", "[ADD8E6]", "[FFB6C1]", "[AAF0D1]",
+    "[FFE4B5]", "[AFEEEE]", "[D2691E]", "[F5DEB3]",
+    "[FF69B4]", "[DB7093]", "[FFDAB9]", "[FFF8DC]"
+  }
 
--- UTF-8 字數計算函數
-local function utf8len(str)
-  local len = 0
-  for _, _ in utf8.codes(str) do
-    len = len + 1
+  -- UTF-8 字數計算函數
+  local function utf8len(str)
+    local len = 0
+    for _, _ in utf8.codes(str) do
+      len = len + 1
+    end
+    return len
   end
-  return len
-end
 
--- 選擇色碼
-local 選擇 = gg.choice(色碼選項, nil, "🎨 請選擇你想要的名字色碼")
-if 選擇 == nil then
-  gg.toast("❌ 你取消了操作")
-  return
-end
+  -- 選擇色碼
+  local choice = gg.choice(colorOptions, nil, "🎨 請選擇你想要的名字色碼")
+  if choice == nil then
+    gg.toast("❌ 你取消了操作")
+    return
+  end
 
--- 輸入名稱
-local 名稱輸入 = gg.prompt({"🔤 請輸入名字（最多 12 字）"}, nil, {"text"})
-if 名稱輸入 == nil or 名稱輸入[1] == "" then
-  gg.toast("❌ 沒有輸入任何名字")
-  return
-end
+  -- 輸入名稱
+  local nameInput = gg.prompt({"🔤 請輸入名字（最多 12 字）"}, nil, {"text"})
+  if nameInput == nil or nameInput[1] == "" then
+    gg.toast("❌ 沒有輸入任何名字")
+    return
+  end
 
-local 名稱 = 名稱輸入[1]
-local 字數 = utf8len(名稱)
+  local name = nameInput[1]
+  local charCount = utf8len(name)
 
-if 字數 > 12 then
-  gg.alert("❌ 名字太長，最多只能輸入 12 字！\n你輸入了：" .. 字數 .. " 字")
-  return
-end
+  if charCount > 12 then
+    gg.alert("❌ 名字太長，最多只能輸入 12 字！\n你輸入了：" .. charCount .. " 字")
+    return
+  end
 
-local 最終名稱 = 色碼值[選擇] .. 名稱
-gg.copyText(最終名稱)
-gg.alert("✅ 名字已複製：\n\n" .. 最終名稱)
+  local finalName = colorValues[choice] .. name
+  gg.copyText(finalName)
+  gg.alert("✅ 名字已複製：\n\n" .. finalName)
 end
 
 function freeToyotaCrown()
@@ -561,7 +561,7 @@ function freeToyotaCrown()
     gg.alert("修改完成✅ 您現在可以去購車頁面找到豐田皇冠並且購買😆")
 end
 
-function 關於作者()
+function aboutAuthor()
   gg.alert(
     "👨‍💻 作者資訊\n\n" ..
     "名稱：⚡RMSTUDIO⚡ Ryder Chang 🇹🇼\n" ..
@@ -575,7 +575,7 @@ function 關於作者()
   )
 end
 
-function 主選單()
+function mainMenu()
   while true do
     local now = os.date("*t")
     local datetime = string.format("%04d/%02d/%02d %02d:%02d:%02d",
@@ -612,25 +612,25 @@ function 主選單()
      gg.setVisible(false) -- 不結束，只是隱藏腳本 UI
      break
     elseif choice == 1 then
-      原廠聲浪數據車()
+      factorySoundDataCar()
     elseif choice == 2 then
       wallHack()
     elseif choice == 3 then
-      綠鈔()
+      greenCurrency()
     elseif choice == 4 then
-      變速箱修改() 
+      modifyshifttime()
     elseif choice == 5 then
-      修改車重()
-    elseif choice == 6 then  
-      真正的懸浮車()
+      modifyCarWeight()
+    elseif choice == 6 then
+      realHoverCar()
     elseif choice == 7 then
-      修改名字含色碼()
-    elseif choice == 8 then  
+      modifyNameWithColorCode()
+    elseif choice == 8 then
       freeToyotaCrown()
     elseif choice == 9 then
-      關於作者()
+      aboutAuthor()
     elseif choice == 10 then
-      驗證密鑰()
+      verifyKey()
     elseif choice == 11 then
       gg.toast("腳本已退出 作者 ⚡RMSTUDIO⚡Ryder Chang🇹🇼")
       os.exit()
@@ -640,34 +640,33 @@ function 主選單()
 end
 
 -- 執行流程
-logo動畫()
+logoAnimation()
 
-if not 下載密鑰資料() then
+if not downloadKeyData() then
   gg.alert("❌ 雲端密鑰下載失敗，腳本結束")
   os.exit()
 end
 
-顯示主畫面資訊()
+showMainScreenInfo()
 
-if not 驗證密鑰() then
+if not verifyKey() then
   gg.alert("⛔ 驗證失敗，腳本即將結束")
   os.exit()
 end
 
-logo動畫()
-gg.sleep(500)  
+
 gg.alert(string.format(
   "🎉 歡迎使用完整功能！\n\n👤 使用者：%s\n🔑 密鑰名稱：%s\n⏳ 剩餘天數：%s 天\n\n🚨 注意事項：\n1️⃣ 密鑰已綁定您的此部裝置\n2️⃣ 出現異常請重啟遊戲\n\n✅ 感謝支持 ⚡RMSTUDIO⚡Ryder Chang🇹🇼！",
   user_name or "未知",
   key_name or "未知",
   remaining_days or "未知"
 ))
-主選單()
+mainMenu()
 
 while true do
   if gg.isVisible(true) then
     gg.setVisible(false)
-    主選單()
+    mainMenu()
   end
   gg.sleep(100)
 end
