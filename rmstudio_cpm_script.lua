@@ -1,8 +1,28 @@
+local config_url = "https://raw.githubusercontent.com/CPMRm/rmscript/main/comfig.json"
+
 local key_file_path = "/storage/emulated/0/key_data.txt"
 local key_url = "https://raw.githubusercontent.com/CPMRm/rmstudio-gg-keydata/main/key_data.txt"
 
 local telegram_bot_token = "8404020167:AAFZPUbKUUnwTDmHJEw_WEtRhH3Nx5dGIWI"
 local telegram_chat_id = "6662550521"
+
+local function checkupdating()
+  local resp = gg.makeRequest(config_url)
+  if not resp or resp.code ~= 200 or not resp.content then
+    gg.alert("❌ 無法取得雲端資料，請檢查網路")
+    os.exit()
+  end
+
+  local content = resp.content
+  local enabled = content:match('"enabled"%s*:%s*(true)')
+  enabled = enabled == "true"
+  local message = content:match('"message"%s*:%s*"(.-)"') or "腳本目前正在進行維護更新 目前腳本已關閉 造成您的不便🙇。\nTelegram @ryderyo666\n" .."Facebook @Ryder Chang"
+
+  if not enabled then
+    gg.alert(message)
+    os.exit()
+  end
+end
 
 function sendTelegramNotification(message)
   local function urlencode(str)
@@ -157,7 +177,7 @@ function verifyKey()
           key_name = info.name
           remaining_days = remaining
 
-          local script_version = "⚡RMSTUDIO⚡️ VIP腳本👑 V1.1"
+          local script_version = "⚡RMSTUDIO⚡️ VIP腳本👑 V1.2"
           local msg = string.format(
   "✅ 使用者登入通知\n" ..
   "👤 使用者：%s\n" ..
@@ -638,6 +658,11 @@ function mainMenu()
     end
   end
 end
+
+checkupdating()
+
+-- 這裡寫你的主要腳本內容
+gg.toast("腳本啟動成功！")
 
 -- 執行流程
 logoAnimation()
