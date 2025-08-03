@@ -208,8 +208,17 @@ function verifyKey()
   return false
 end
 
-function factorySoundDataCar()
-  gg.alert("🔊 功能：414原廠聲浪數據車")
+function mod_car_414hp()
+  gg.setVisible(false)
+  gg.alert("🔊 功能：修改414原廠聲浪數據\n請先按重置此車引擎\n並且記住現在車輛的現在4個馬力數值\n完成後再點擊 GG 的 Logo 開始修改")
+
+  -- 等待使用者點擊 GG logo
+  while true do
+    if gg.isVisible(true) then
+      gg.setVisible(false)
+      break
+    end
+  end
 
   -- 左上
   local topLeft = gg.prompt({"左上：請輸入數字"}, nil, {"number"})
@@ -219,7 +228,7 @@ function factorySoundDataCar()
     gg.getResults(100)
     gg.editAll("414", gg.TYPE_FLOAT)
     gg.clearResults()
-    gg.toast("左上數值已編輯為414")
+    gg.toast("左上數值已編輯")
   else
     gg.alert("已取消左上數值輸入。")
     return
@@ -233,7 +242,7 @@ function factorySoundDataCar()
     gg.getResults(100)
     gg.editAll("8000", gg.TYPE_FLOAT)
     gg.clearResults()
-    gg.toast("右上數值已編輯為8000")
+    gg.toast("右上數值已編輯")
   else
     gg.alert("已取消右上數值輸入。")
     return
@@ -247,7 +256,7 @@ function factorySoundDataCar()
     gg.getResults(100)
     gg.editAll("2254", gg.TYPE_FLOAT)
     gg.clearResults()
-    gg.toast("左下數值已編輯為2254")
+    gg.toast("左下數值已編輯")
   else
     gg.alert("已取消左下數值輸入。")
     return
@@ -261,12 +270,82 @@ function factorySoundDataCar()
     gg.getResults(100)
     gg.editAll("7997", gg.TYPE_FLOAT)
     gg.clearResults()
-    gg.toast("右下數值已編輯為7997")
+    gg.toast("右下數值已編輯")
   else
     gg.alert("已取消右下數值輸入。")
     return
   end
 end
+
+function mod_car_1695hp()
+  gg.setVisible(false)
+  gg.alert("🔊 功能：修改1695原廠聲浪\n請先按重置此車引擎\n並且記住現在車輛的現在4個馬力數值\n完成後再點擊 GG 的 Logo 開始修改")
+
+  -- 等待使用者點擊 GG logo
+  while true do
+    if gg.isVisible(true) then
+      gg.setVisible(false)
+      break
+    end
+  end
+
+  -- 左上
+  local topLeft = gg.prompt({"左上：請輸入數字"}, nil, {"number"})
+  if topLeft and topLeft[1] then
+    gg.clearResults()
+    gg.searchNumber(tonumber(topLeft[1]), gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
+    gg.getResults(100)
+    gg.editAll("1695", gg.TYPE_FLOAT)
+    gg.clearResults()
+    gg.toast("左上數值已編輯")
+  else
+    gg.alert("已取消左上數值輸入。")
+    return
+  end
+
+  -- 右上
+  local topRight = gg.prompt({"右上：請輸入數字"}, nil, {"number"})
+  if topRight and topRight[1] then
+    gg.clearResults()
+    gg.searchNumber(tonumber(topRight[1]), gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
+    gg.getResults(100)
+    gg.editAll("7000", gg.TYPE_FLOAT)
+    gg.clearResults()
+    gg.toast("右上數值已編輯")
+  else
+    gg.alert("已取消右上數值輸入。")
+    return
+  end
+
+  -- 左下
+  local bottomLeft = gg.prompt({"左下：請輸入數字"}, nil, {"number"})
+  if bottomLeft and bottomLeft[1] then
+    gg.clearResults()
+    gg.searchNumber(tonumber(bottomLeft[1]), gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
+    gg.getResults(100)
+    gg.editAll("2254", gg.TYPE_FLOAT)
+    gg.clearResults()
+    gg.toast("左下數值已編輯")
+  else
+    gg.alert("已取消左下數值輸入。")
+    return
+  end
+
+  -- 右下
+  local bottomRight = gg.prompt({"右下：請輸入數字"}, nil, {"number"})
+  if bottomRight and bottomRight[1] then
+    gg.clearResults()
+    gg.searchNumber(tonumber(bottomRight[1]), gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1)
+    gg.getResults(100)
+    gg.editAll("3500", gg.TYPE_FLOAT)
+    gg.clearResults()
+    gg.toast("右下數值已編輯")
+  else
+    gg.alert("已取消右下數值輸入。")
+    return
+  end
+end
+
 
 function wallHack()
   gg.setRanges(gg.REGION_ANONYMOUS)
@@ -416,7 +495,7 @@ function realHoverCar()
     gg.sleep(500)
   end
 
-  gg.alert("📢 請進入遊戲場景畫面（例如車庫或地圖）\n進入後點擊 GG 圖示開始修改")
+  gg.alert("📢 請進入遊戲場景畫面（例如車庫或房內    ）\n進入後點擊 GG 圖示開始修改")
 
   -- 等待使用者點擊 GG Logo
   while true do
@@ -555,7 +634,7 @@ function modifyNameWithColorCode()
 
   local finalName = colorValues[choice] .. name
   gg.copyText(finalName)
-  gg.alert("✅ 名字已複製：\n\n" .. finalName)
+  gg.alert("✅ 名字已複製 您現在可以去名字編輯地方直接貼上：\n\n" .. finalName)
 end
 
 function freeToyotaCrown()
@@ -574,11 +653,488 @@ function freeToyotaCrown()
         gg.editAll("0", gg.TYPE_DWORD)
         gg.toast("數據修改完成🤫")
     else
-        gg.alert("未找到匹配數據，請重試！")
+        gg.alert("未找到匹配數值，請重試！")
     end
 
     gg.clearResults()
     gg.alert("修改完成✅ 您現在可以去購車頁面找到豐田皇冠並且購買😆")
+end
+
+-- 初始狀態
+
+
+
+
+function second1_race_on()
+gg.clearResults()
+gg.clearList()
+-- main code on
+gg.setRanges(gg.REGION_ANONYMOUS)
+gg.searchNumber("2500", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(500, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("-999999", gg.TYPE_FLOAT)
+gg.processResume()
+gg.setRanges(gg.REGION_CODE_APP)
+
+gg.clearResults()
+gg.searchNumber("1.1", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(1000, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("99", gg.TYPE_FLOAT)
+
+gg.clearResults()
+gg.searchNumber("10000000", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(500, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("1E-08", gg.TYPE_FLOAT)
+gg.alert("1秒 開啟    ⃢🟢")
+gg.processResume()
+end
+
+function second1_race_off()
+gg.clearResults()
+gg.clearList()
+-- main code on
+gg.setRanges(gg.REGION_ANONYMOUS)
+gg.searchNumber("-999999", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(1000, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("2500", gg.TYPE_FLOAT)
+gg.processResume()
+gg.setRanges(gg.REGION_CODE_APP)
+
+gg.clearResults()
+gg.searchNumber("99", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(1000, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("1.1", gg.TYPE_FLOAT)
+
+gg.clearResults()
+gg.searchNumber("1E-08", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(1000, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("10000000", gg.TYPE_FLOAT)
+gg.alert("1 秒 關閉 🔴⃢  ")
+gg.processResume()
+end
+function second2_race_on()
+gg.clearResults()
+gg.clearList()
+-- main code on
+gg.setRanges(gg.REGION_ANONYMOUS)
+gg.searchNumber("2500", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(500, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("-80000", gg.TYPE_FLOAT)
+gg.processResume()
+
+gg.clearResults()
+gg.setRanges(gg.REGION_CODE_APP)
+gg.searchNumber("1.1", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(1000, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("3", gg.TYPE_FLOAT)
+
+gg.clearResults()
+gg.searchNumber("10000000", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(500, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("2E-44", gg.TYPE_FLOAT)
+gg.alert("2秒 開啟   ⃢🟢")
+gg.processResume()
+end
+
+function second2_race_off()
+gg.clearResults()
+gg.clearList()
+-- main code on
+gg.setRanges(gg.REGION_ANONYMOUS)
+gg.searchNumber("-80000", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(500, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("2500", gg.TYPE_FLOAT)
+gg.processResume()
+
+gg.clearResults()
+gg.setRanges(gg.REGION_CODE_APP)
+gg.searchNumber("3", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(1000, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("1.1", gg.TYPE_FLOAT)
+
+gg.clearResults()
+gg.setRanges(gg.REGION_CODE_APP)
+gg.searchNumber("2E-08", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(500, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("10000000", gg.TYPE_FLOAT)
+gg.alert("2秒 關閉 🔴⃢  ")
+gg.processResume()
+end
+
+function second3_race_on()
+gg.clearResults()
+gg.clearList()
+-- main code on
+gg.setRanges(gg.REGION_ANONYMOUS)
+gg.searchNumber("2500", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(500, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("-80000", gg.TYPE_FLOAT)
+gg.processResume()
+
+gg.clearResults()
+gg.setRanges(gg.REGION_CODE_APP)
+gg.searchNumber("1.1", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(1000, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("2.04", gg.TYPE_FLOAT)
+gg.alert("3秒 開啟   ⃢🟢")
+gg.processResume()
+end
+
+function second3_race_off()
+gg.clearResults()
+gg.clearList()
+-- main code on
+gg.setRanges(gg.REGION_ANONYMOUS)
+gg.searchNumber("-80000", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(500, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("2500", gg.TYPE_FLOAT)
+gg.processResume()
+gg.setRanges(gg.REGION_CODE_APP)
+
+gg.clearResults()
+gg.searchNumber("2.04", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(1000, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("1.1", gg.TYPE_FLOAT)
+gg.alert("3秒 關閉 🔴⃢  ")
+gg.processResume()
+end
+
+function hand_brake()
+gg.clearResults()
+gg.clearList()
+-- main code
+gg.setRanges(gg.REGION_ANONYMOUS)
+gg.searchNumber("6000", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(10000, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("-6500", gg.TYPE_FLOAT)
+gg.toast("手煞車開啟   ⃢🟢")
+gg.processResume()
+end
+
+function bug_start()
+gg.setVisible(false)
+LibStart=gg.getRangesList('libil2cpp.so')[2].start
+SP=nil
+SP={}
+SP[1]={}
+SP[2]={}
+SP[1].address=LibStart+0x31DFE80
+SP[1].value='h200080D2'
+SP[1].flags=4
+SP[2].address=LibStart+(0x31DFE80+0x4)
+SP[2].value='hC0035FD6'
+SP[2].flags=4
+gg.setValues(SP)
+
+LibStart=gg.getRangesList('libil2cpp.so')[1].start
+SP=nil
+SP={}
+SP[1]={}
+SP[2]={}
+SP[1].address=LibStart+0x31DFE80
+SP[1].value='h200080D2'
+SP[1].flags=4
+SP[2].address=LibStart+(0x31DFE80+0x4)
+SP[2].value='hC0035FD6'
+SP[2].flags=4
+gg.setValues(SP)
+gg.setValues(SP)
+gg.toast("ON")
+gg.sleep(1000)
+end
+
+function control_glitch()
+-- 控制秒車
+gg.clearResults()
+gg.clearList()
+-- main code on
+gg.setRanges(gg.REGION_ANONYMOUS)
+gg.searchNumber("9.18354962e-41;0.15000000596;0.25:17", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+gg.processResume()
+gg.refineNumber("0.15000000596", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(100, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("0", gg.TYPE_FLOAT)
+gg.alert("開啟    ⃢🟢")
+gg.processResume()
+end
+
+function drift_car_on()
+gg.clearResults()
+gg.clearList()
+-- main code
+gg.setRanges(gg.REGION_CODE_APP)
+gg.searchNumber("1.6", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(100000, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("10", gg.TYPE_FLOAT)
+gg.toast("開啟   ⃢🟢")
+gg.processResume()
+end
+
+function drift_car_off()
+gg.clearResults()
+gg.clearList()
+-- main code
+gg.setRanges(gg.REGION_CODE_APP)
+if revert ~= nil then gg.setValues(revert) end
+gg.toast("關閉 🔴⃢  ")
+gg.processResume()
+end
+
+car_dance1_on = false
+on = "    ⃢🟢"
+off = "🔴⃢  "
+local saved_results = {}
+
+function car_dance1(enable)
+    -- 設定記憶體搜索範圍為 XA 區域
+    gg.setRanges(gg.REGION_CODE_APP)
+
+    -- 如果是啟用狀態，則進行搜索
+    if enable then
+        gg.clearResults()
+        gg.searchNumber("10000000", gg.TYPE_FLOAT)
+        saved_results = gg.getResults(1000) -- 獲取前1000個結果並保存
+
+        -- 檢查是否找到結果
+        if #saved_results == 0 then
+            gg.toast("未找到符合條件的值")
+            return
+        end
+    end
+
+    -- 根據 enable 參數設置值
+    local value = enable and "-50" or "1"
+
+    -- 修改找到的浮點數值
+    for i, v in ipairs(saved_results) do
+        v.value = value
+        v.flags = gg.TYPE_FLOAT
+    end
+
+    -- 將修改後的值寫回記憶體
+    gg.setValues(saved_results)
+
+    -- 提示修改完成
+    gg.toast("修改完成")
+end
+
+car_dance2_on = false
+on = "    ⃢🟢"
+off = "🔴⃢  "
+local saved_results = {}
+
+function car_dance2(enable)
+    -- 設定記憶體搜索範圍為 XA 區域
+    gg.setRanges(gg.REGION_CODE_APP)
+
+    -- 如果是啟用狀態，則進行搜索
+    if enable then
+        gg.clearResults()
+        gg.searchNumber("10000000", gg.TYPE_FLOAT)
+        saved_results = gg.getResults(1000) -- 獲取前1000個結果並保存
+
+        -- 檢查是否找到結果
+        if #saved_results == 0 then
+            gg.toast("未找到符合條件的值")
+            return
+        end
+    end
+
+    -- 根據 enable 參數設置值
+    local value = enable and "-15" or "1"
+
+    -- 修改找到的浮點數值
+    for i, v in ipairs(saved_results) do
+        v.value = value
+        v.flags = gg.TYPE_FLOAT
+    end
+
+    -- 將修改後的值寫回記憶體
+    gg.setValues(saved_results)
+
+    -- 提示修改完成
+    gg.toast("修改完成")
+end
+
+car_dance3_on = false
+on = "    ⃢🟢"
+off = "🔴⃢  "
+local saved_results = {}
+
+function car_dance3(enable)
+    -- 設定記憶體搜索範圍為 XA 區域
+    gg.setRanges(gg.REGION_CODE_APP)
+
+    -- 如果是啟用狀態，則進行搜索
+    if enable then
+        gg.clearResults()
+        gg.searchNumber("10000000", gg.TYPE_FLOAT)
+        saved_results = gg.getResults(1000) -- 獲取前1000個結果並保存
+
+        -- 檢查是否找到結果
+        if #saved_results == 0 then
+            gg.toast("未找到符合條件的值")
+            return
+        end
+    end
+
+    -- 根據 enable 參數設置值
+    local value = enable and "-1" or "1"
+
+    -- 修改找到的浮點數值
+    for i, v in ipairs(saved_results) do
+        v.value = value
+        v.flags = gg.TYPE_FLOAT
+    end
+
+    -- 將修改後的值寫回記憶體
+    gg.setValues(saved_results)
+
+    -- 提示修改完成
+    gg.toast("修改完成")
+end
+
+
+function racemenu()
+  local choice = gg.choice({
+    "🚀1秒(400m)開啟    ⃢🟢",
+    "🚀1秒(400m)關閉 🔴⃢  ",
+    "🚀 2秒(400m)開啟    ⃢🟢",
+    "🚀 2秒(400m)關閉 🔴⃢  ",
+    "🚀 3秒(400m)開啟    ⃢🟢",
+    "🚀 3秒(400m)關閉 🔴⃢  ",
+    "🔥 手煞車 ",
+    "🤭 Bug起跑 ",
+    "🎛️ 強制控制秒車 ",
+    "🔙 返回主選單"
+  }, nil, "🏁比賽功能選單\n請選擇一個功能：")
+
+  if choice == 1 then
+    second1_race_on()
+  elseif choice == 2 then
+    second1_race_off()
+    -- 1秒關閉
+  elseif choice == 3 then
+    second2_race_on()
+  elseif choice == 4 then
+    second2_race_off()
+  elseif choice == 5 then
+    second3_race_on()
+  elseif choice == 6 then
+    second3_race_off()
+  elseif choice == 7 then
+    hand_brake()
+  elseif choice == 8 then
+    bug_start()
+  elseif choice == 9 then
+    control_glitch()
+  elseif choice == 10 or choice == nil then
+    return
+  end
+end
+
+function funmenu()
+  local state = car_dance1_on and on or off
+  local state = car_dance2_on and on or off
+  local state = car_dance3_on and on or off
+  local choice = gg.choice({
+    state .."惡搞 汽車跳舞1😜",
+    state .."惡搞 汽車跳舞2😜",
+    state .."惡搞 汽車失重飄浮😜",
+    "🧱穿牆",
+    "🔙 返回主選單"
+  }, nil, "😏好玩菜單功能選單\n請選擇一個功能：")
+
+  if choice == 1 then
+    car_dance1_on = not car_dance1_on
+      car_dance1(car_dance1_on)
+  elseif choice == 2 then
+    car_dance2_on = not car_dance2_on
+      car_dance2(car_dance2_on)
+  elseif choice == 3 then
+    car_dance3_on = not car_dance3_on
+      car_dance3(car_dance3_on)
+  -- 車輛跳舞漂浮
+  elseif choice == 4 then
+    wallHack()
+  elseif choice == 5 or choice == nil then
+    return
+  end
+end
+
+function mod_car_menu()
+  local choice = gg.choice({
+    "🔧原廠聲浪414hp",
+    "🔧原廠聲浪1695hp",
+    "🔁修改車重",
+    "☠️變速箱修改 1E-12秒",
+    "🔙 返回主選單"
+  }, nil, "⚒️車輛修改\n請選擇一個功能：")
+
+  if choice == 1 then
+    mod_car_414hp()
+  elseif choice == 2 then
+    mod_car_1695hp()
+  elseif choice == 3 then
+    modifyCarWeight()
+  elseif choice == 4 then
+    modifyshifttime()
+  elseif choice == 5 or choice == nil then
+    return
+  end
+end
+
+function unlock_car_menu()
+  local choice = gg.choice({
+    "🔓解鎖購買豐田皇冠車",
+    "🔙 返回主選單"
+  }, nil, "🔓解鎖車輛項目菜單\n請選擇一個功能：")
+
+  if choice == 1 then
+    freeToyotaCrown()
+  elseif choice == 2 or choice == nil then
+    return
+  end
+end
+
+function car_drift_on()
+gg.clearResults()
+gg.clearList()
+-- main code
+gg.setRanges(gg.REGION_CODE_APP)
+gg.searchNumber("1.6", gg.TYPE_FLOAT, false, gg.SIGN_EQUAL, 0, -1, 0)
+revert = gg.getResults(100000, nil, nil, nil, nil, nil, nil, nil, nil)
+gg.editAll("10", gg.TYPE_FLOAT)
+gg.toast("甩尾已開啟    ⃢🟢")
+gg.processResume()
+end
+
+function car_drift_off()
+gg.clearResults()
+gg.clearList()
+-- main code
+gg.setRanges(gg.REGION_CODE_APP)
+if revert ~= nil then gg.setValues(revert) end
+gg.toast("車輛甩尾已關閉 🔴⃢  ")
+gg.processResume()
+end
+
+
+
+function car_drift_menu()
+   local choice = gg.choice({
+    "💨車輛甩尾 開啟    ⃢🟢 ",
+    "💨車輛甩尾 關閉🔴⃢   ",
+    "🔙 返回主選單"
+  }, nil, "☄️車輛甩尾功能選單\n請選擇一個功能：")
+
+  if choice == 1 then
+    car_drift_on()
+  elseif choice == 2 then
+    car_drift_off()
+  elseif choice == 3 or choice == nil then
+    return
+  end
 end
 
 function aboutAuthor()
@@ -613,18 +1169,17 @@ function mainMenu()
       key_name or "未知",
       remaining_days or "未知"
     )
-
+    
     local choice = gg.choice({
-      "🔧414hp原廠聲浪",
-      "🧱穿牆",
       "💸綠鈔5000萬",
-      "☠️變速箱修改 1E-12秒",
-      "🔁修改車重",
       "🥵真正的懸浮車",
       "📋修改長名含色碼",
-      "🔓解鎖購買豐田皇冠車",
+      "🔓車輛解鎖菜單",
+      "🔧🚗車輛修改菜單",
+      "😏好玩菜單",
+      "🏁比賽菜單",
+      "💨車輛甩尾菜單",
       "📄 關於作者",
-      "🔐 驗證密鑰",
       "❌ 退出腳本"
     }, nil, title)
 
@@ -632,26 +1187,24 @@ function mainMenu()
      gg.setVisible(false) -- 不結束，只是隱藏腳本 UI
      break
     elseif choice == 1 then
-      factorySoundDataCar()
-    elseif choice == 2 then
-      wallHack()
-    elseif choice == 3 then
       greenCurrency()
-    elseif choice == 4 then
-      modifyshifttime()
-    elseif choice == 5 then
-      modifyCarWeight()
-    elseif choice == 6 then
+    elseif choice == 2 then
       realHoverCar()
-    elseif choice == 7 then
+    elseif choice == 3 then
       modifyNameWithColorCode()
+    elseif choice == 4 then
+      unlock_car_menu()
+    elseif choice == 5 then
+      mod_car_menu()
+    elseif choice == 6 then
+      funmenu()
+    elseif choice == 7 then
+      racemenu()
     elseif choice == 8 then
-      freeToyotaCrown()
+      car_drift_menu()
     elseif choice == 9 then
       aboutAuthor()
     elseif choice == 10 then
-      verifyKey()
-    elseif choice == 11 then
       gg.toast("腳本已退出 作者 ⚡RMSTUDIO⚡Ryder Chang🇹🇼")
       os.exit()
       break
@@ -695,3 +1248,4 @@ while true do
   end
   gg.sleep(100)
 end
+
